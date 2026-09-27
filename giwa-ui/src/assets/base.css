@@ -1,0 +1,120 @@
+:root {
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --color-brand: #7ee4d0;
+  --color-brand-hover: #a4f1e1;
+  --color-brand-soft: #12312f;
+  --color-action: #79e2cd;
+  --color-action-hover: #a4f1e1;
+  --color-on-action: #102b29;
+  --color-canvas: #0a1114;
+  --color-surface: #111c21;
+  --color-surface-subtle: #19272d;
+  --color-text: #f1f7f7;
+  --color-text-muted: #a7b8bf;
+  --color-border: #2d4149;
+  --color-border-strong: #5a7581;
+  --color-brand-border: #3a7b72;
+  --color-focus: #a4f1e1;
+  --color-success: #8ce5c0;
+  --color-success-soft: #102c24;
+  --color-success-border: #386b58;
+  --color-warning: #f2ca83;
+  --color-warning-soft: #302516;
+  --color-warning-border: #896936;
+  --color-danger: #ffacab;
+  --color-danger-soft: #321c24;
+  --color-danger-border: #91505e;
+  --shadow-panel: 0 14px 40px rgb(0 0 0 / 20%);
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --content-width: 1200px;
+  --transition-fast: 150ms ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--color-canvas);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  color: var(--color-text);
+  background: var(--color-canvas);
+  line-height: 1.5;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--color-brand-soft);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+input,
+textarea,
+select {
+  accent-color: var(--color-action);
+}
+
+.midnight-wordmark {
+  display: block;
+  width: 130px;
+  height: 28px;
+  flex-shrink: 0;
+}

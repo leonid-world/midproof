@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /
+Allow: /$
+Allow: /login$
+Allow: /assets/
+Allow: /favicon
+Allow: /apple-touch-icon.png
+Allow: /midproof-logo.svg
+Allow: /og-midproof.png
+
+Sitemap: https://midproof.vercel.app/sitemap.xml

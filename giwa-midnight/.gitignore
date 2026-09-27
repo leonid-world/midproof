@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+logs/
+.midnight-state/
+.midnight-demo/
+midnight-level-db/
+reports/
+.gasok-midnight-private-state.lock
+.gasok-midnight-capability-outbox/
+*.log

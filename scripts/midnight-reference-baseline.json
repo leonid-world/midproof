@@ -1,0 +1,511 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-09-18",
+  "reference": {
+    "directory": "Midnight-Skills",
+    "repository": "https://github.com/Kali-Decoder/Midnight-Skills.git",
+    "commit": "f1649caf7fbfedb79d6976976f8dbef4e19e43f8",
+    "files": {
+      ".agents/skills/1am-wallet/SKILL.md": "58f80418cc931462fc736e6934c3ff23712e13a30ae7da00576d25c63f32d63b",
+      ".agents/skills/android-example-voting/SKILL.md": "a564eef893ba56bdbef67dcbdaabc777f36d5def18fb2a9785e7f59058cc40c0",
+      ".agents/skills/ankr-midnight/SKILL.md": "b62b6ff042080ab6c69d8900f9de2178769dd6d165e94c3ff8db27aae53ec0c5",
+      ".agents/skills/compact/SKILL.md": "712710de92512113eb99e51412c23c2ed8096a4a6e3cefdda55d0771555d5da5",
+      ".agents/skills/dynamic-midnight-wallet/SKILL.md": "0f41207e6254ddd357182986441ff47975d02ce489aac192964fa1bcc0a10537",
+      ".agents/skills/example-counter/SKILL.md": "70843a44940dec4c32469a77748900c529775c304cf5bf8f9c120a792b192cd1",
+      ".agents/skills/example-hello-world/SKILL.md": "985b46dd038b6e20400b2fd99be2c64bc07a09e07a269b9153a896afbbd88bb7",
+      ".agents/skills/example-leaderboard-dapp/SKILL.md": "c4b37168943ba747f86b6a71b8a8dc1af1ab342db91f6501f29abe9c848a77d1",
+      ".agents/skills/example-locker-dapp/SKILL.md": "ecc4c16d25e0ab23e48156175e3cc5dea6a8f5476daa9adaa4eed876a7c58f92",
+      ".agents/skills/example-payment-dapp/SKILL.md": "288d0680206f3a7562fe8ca4911b0cacbf447fe6bf2dda29d73b51ce9d4b8ef3",
+      ".agents/skills/example-private-party-dapp/SKILL.md": "f985367d69aec2d4f2ad456958730521aa795844cdac7dfe77850d587bd8b4f7",
+      ".agents/skills/example-private-reserve-auction/SKILL.md": "8553c7404e5e8c881089ddf6f2a7439af4db2647922258be4a2cf179901283fd",
+      ".agents/skills/example-zk-loan-application/SKILL.md": "96051b7e97570f95e976ac537370730fec7a0c229ab2277f68c70483aa82ea09",
+      ".agents/skills/gsap-core/SKILL.md": "3887b47e050ab5afbe2a9a820f23d39fa02ab785e06a343be44c6f91d84d12b3",
+      ".agents/skills/gsap-utils/SKILL.md": "1927bcc4ea95b38203404ad5ea1d060b15c4a886c65ae53e885ff1793aabe0ba",
+      ".agents/skills/indexer/SKILL.md": "e39ff490952cf5d2d44bbdac2124981ec4314e6556ab7aa23539b13801ef4675",
+      ".agents/skills/midnight-consensus/SKILL.md": "7b069c0feb0f6d04bb8097bec7268002099aa6263b66b37f456742c467f4155e",
+      ".agents/skills/midnight-cryptography/SKILL.md": "4f22a03d58f90904ff61830d1a53a34f7faf2ef39bcb04c0c826effe339b769b",
+      ".agents/skills/midnight-environment-setup/SKILL.md": "9c06598d0dc81a0605d2791386d258e1c99c6b7cbb966e213a68b8fe5167bda2",
+      ".agents/skills/midnight-js/SKILL.md": "347e43df12cbd73ae4dbbf4fe5f1c83e83ee8f29d9288b9bdd07f4c132da7616",
+      ".agents/skills/midnight-onchain-logic/SKILL.md": "89a652ea00c67a64ddc711c6ce57a305af1df448a033ddf7974ff7a6cbe01d12",
+      ".agents/skills/midnight-p2p-networking/SKILL.md": "607c633da06fc8bdbb20f144e824cebbfe761339736e82b7fff30f9db1f48d8e",
+      ".agents/skills/midnight-rpc/SKILL.md": "78fd59c7b1af1655945c78f6b349ba70feeabfb91987c35bda82606e1f01be5a",
+      ".agents/skills/midnight-storage/SKILL.md": "682fed90179fe868652b03ecf2532c2fe9015fa9c33c01bb767ea78f6c046938",
+      ".agents/skills/midnight-transactions/SKILL.md": "765308d3f51143aff7acc23565f476b2100a3d8a74016dabd41fe17362064269",
+      ".agents/skills/midnightskill/SKILL.md": "86712b2a5ac7f3fa8a5129e3b830add8cde9cee899ccdaf4aa3471e4956947ed",
+      ".agents/skills/multinetwork/SKILL.md": "8d6aa2dea21e1b8c33378fce41505650a1a6c6369c19870f864616c6ae800ac0",
+      ".agents/skills/nft/SKILL.md": "df084d10767a2b6356e474669c12cea66f934c5ead36532fba165e34ad17a424",
+      ".agents/skills/react-wallet-connector/SKILL.md": "26d1b83d22e876d127e10157284990880398e1db7be877b1502292ee2b248323",
+      ".agents/skills/security/SKILL.md": "a36d11d127e148aa78df095047cfb707b56be6465205ad36623172e52271e2df",
+      ".agents/skills/testing/SKILL.md": "21acd3407e819b20a1e1da1a30c85604f1909bafa585987d7ac21581002b1521",
+      ".agents/skills/token-transfers/SKILL.md": "c6fcd54a71e4d92acf1501fb77f16069a9da71c65eca2af6a5eb0ab0f90c6a11",
+      ".agents/skills/why-midnight/SKILL.md": "ea3b2415659fe3efcb8d59c011246eacca917f2471377719c54747d2ed919190",
+      ".agents/skills/zk-vs-fhe-vs-mpc/SKILL.md": "5a87cacf8fd74f84a3d37a1b3c879e674d9f9a0fd9572d64e89d3f28e535f092",
+      ".claude-plugin/marketplace.json": "064bf7f4845810ac5beee9068fa8d44975946143e9ffa57d1f25d73425429509",
+      ".claude-plugin/plugin.json": "6f0f0ee6a09abbab1a7b4d85b7df6bcf7489f49cb5b777fc00f09d7d64ff7774",
+      ".github/ISSUE_TEMPLATE/propose-a-new-skill.md": "3df05af0df98da7a3b4d49dc2436e136842fe979cbeb3e1e8f4348e1c1c4b4c8",
+      ".github/ISSUE_TEMPLATE/propose-new-skill.yml": "2ce950552e1cebd83f66330e40d67cdb719610ad62815d0ec509e73065e6951b",
+      ".github/workflows/publish-registry.yml": "302cbe4f0bf4c7d5dfccab2b915d6f81a71142cca89104e7b0fda8672cfe74a7",
+      ".github/workflows/validate-registry.yml": "111b76e348b70b794c87f1db1efa19b58dfb77258bb32ba8120ac357c21f5af1",
+      ".gitignore": "4b085a2429a1321659b92f8a83563c9fc99d2aac187efbc213969abc429329cd",
+      "CONTRIBUTING.md": "876df232ae3d72036e9d9742e22a7d4b8f337e684f945c279f767a52775ee6e5",
+      "LICENSE": "d952a41abd6a53287e9e07577117a06844b660405d2fc55c286eafe2c6abd5ad",
+      "README.md": "8af32db73b3de04c18efa44aeb96fe496adc5473d4092cb2c50518a62928f260",
+      "logos/banner.png": "11e4114cf38d1303ed96d6a306dcb1f07977d0dedfa732cb65b459c752865e58",
+      "logos/claude.png": "c068cd657bbb55565442d5deef8b45b9168d1913f8da5a392ecf5de1d39ed558",
+      "logos/cursor.png": "8de0dc8228b5ee11b458abc9ac6ea80acae2b1e1737f72f6935c5800f8573ff3",
+      "logos/gemini.png": "a067ee80bc1c2a59e96e880e0ae6a17853efbf361cf3e71883467076a9b83a87",
+      "logos/github.png": "318867cd83358bf593b352b2ef7237772effdf2c65fdd869abfa61ac8863774c",
+      "logos/kiro.png": "ddf09ef6bd48bb77e53c79ea4b9a0c7009a35e4f9e6e3c5481a0fcc1210f4b6a",
+      "logos/logo.png": "f5cfc8f6f4e5e0c658326c2ad2eccd3dbf98c0df834c260d5928ab75c8bd0d41",
+      "logos/openai.png": "7fcc56167f2aef0ecc9a07623f723563237536affa9396c61c4b41f19b54cc2b",
+      "logos/opencode.png": "58487f80125534206fa0de401d65b12c77b5869a6b9d34b096ec80c15eb499a9",
+      "logos/pi.svg": "2d43cb4f6a239ac70416214ac05842be34175339f761001fab3e8d01459bec69",
+      "package-lock.json": "2cf586677ae58e4475cc4441d9ab15f0ff738ef3cf7af01d648ac61f6103629c",
+      "package.json": "07051801f5b5f553bf5d3319e021e40e9055f856c16bd73011e04d33f0330a38",
+      "references/README.md": "2846fb79b87db002e1d93d645c11c0bf06e222ab480533ebbdfa1d1075de4095",
+      "references/gotchas.md": "fa6adef347b7c20b97036e0006b126a7b379d98f01ab67eda1917da5d576b95c",
+      "references/midnight-node-architecture.md": "e5aa8ed5d2b8e641ebecf23d5138df19c9650e6432087a1c696c583ed837faec",
+      "references/midnight-session.md": "66bdbdf6cbfab81cfe2cda6af27672a3a20c004a6df0bab5c30787d85e292e5b",
+      "references/versions.json": "adbb173234a9dda800457aeee4fdd9d96b07c79697fcd2ad12f080431f861f2e",
+      "scripts/package-registry.mjs": "d88f30380030bdea4c0ca4b63b1eb20b17ffe77c5e7ebe79b1b503a47edfc160",
+      "scripts/registry-utils.mjs": "af5754626561fbcea4c357e881501d01e9d1a314b3a90bf8f47a4a6e2c4565fe",
+      "scripts/sync-skill-registry.mjs": "d954a2ad24d107d5319dd6899af02defafcf50bd23e729d2d124a4c36e890d5a",
+      "scripts/validate-registry.mjs": "6e353280187d5ef8cc0d760114784a22a2e6d106a5684ea56fbccacf7feff9b4",
+      "skills-lock.json": "1014c9b72948981ac0589fb042b7134878e9cc492d8c53ff379945d4622424c0",
+      "skills.json": "fbe06fada29a519cc946bcf9a8a0144eff4e611c50f08069410faa96c3eed309",
+      "templates/leaderboard-dapp/.gitignore": "affc0db54b08b07a875b2781d5bb411311248882e880779e4f0f42db34b7a5c5",
+      "templates/leaderboard-dapp/README.md": "dd597d79648b42384844ce7e76395dd14cbe82a735e777b159054d6af4bd38eb",
+      "templates/leaderboard-dapp/app/layout.tsx": "806a78943199cddbe9dc56447e677e4c4fa363e2922b6639277fdd452bdff3ec",
+      "templates/leaderboard-dapp/app/leaderboard/LeaderboardClient.tsx": "481ffd94a22b231a79b34cd47bd90ee2418b0788518f74ca663aaeea0e45a75d",
+      "templates/leaderboard-dapp/app/page.tsx": "258d5d1b0523f4c79deb1a88462b58a96d150e0bbb1ca7b59fee4be1186b76af",
+      "templates/leaderboard-dapp/contract/package-lock.json": "ab110f68b868fd640248ca0169e4d60f1b4f63ec2a56f46002cf247f7327c1e3",
+      "templates/leaderboard-dapp/contract/package.json": "64a9972413dfc23b82b964fb5abff3b827ce5ecaf4b2cc166663279ad522eb70",
+      "templates/leaderboard-dapp/contract/src/index.ts": "c78bf112866c11a1153c8ac8d2b030a2ee37e8f68b98877a9bd38e6fea196a5f",
+      "templates/leaderboard-dapp/contract/src/leaderboard.compact": "6ab02041b730801dc99d9f5cf41ad7dcde6860513a7abf91c0054e0733ce8e7a",
+      "templates/leaderboard-dapp/contract/src/witnesses.ts": "a3d6270ac902b4636a2639817bef6fc1eafcb6462d983ef1efde7fb8f04bf995",
+      "templates/leaderboard-dapp/lib/display-name.ts": "2d79f008edcd4c4714152bcca81d9d5673d890af95c8c186c85f295eb100095a",
+      "templates/leaderboard-dapp/lib/isomorphic-ws-fix.mjs": "2464ed6086f9b95223ddfafc14eb2c06dd175d621e3f5799f8765fcfef66f756",
+      "templates/leaderboard-dapp/lib/leaderboard.ts": "802411f30229601fd74354d64287bc89921be4171ac12e8d5e02b3e3b292a4b7",
+      "templates/leaderboard-dapp/lib/midnight.ts": "0eb814f4cc0e1c482810f2066bd19458be2c96ea95d047cdc9f38a26824fca1e",
+      "templates/leaderboard-dapp/next-env.d.ts": "879741880b6ab48da99dcc06dcc674d381c9826137b0496bf7bb368f302de9fc",
+      "templates/leaderboard-dapp/next.config.mjs": "f14a2ef6939ad7ddf3eea4126cd57e2f9896e7b848ba591b34b7df3470e3c86d",
+      "templates/leaderboard-dapp/package.json": "6c56ad21bbd467dbabda288c7773bd740d911da39d9135ff6b44dde0d0338cc8",
+      "templates/leaderboard-dapp/scripts/sync-zk-assets.mjs": "4f26ec0a52d011d017ec8e6eb859d643d578f4ce29d6d8b091e917abe8ffebb9",
+      "templates/leaderboard-dapp/tsconfig.json": "ff85dfe75db26bf9c031c2a673ddf7692815707b57d6baa01e7a2f4213f32a54",
+      "templates/locker-dapp/.gitignore": "a4fcf6204b0d1111228a0fbebad8871a632570855601f97678745669cd1ae5bc",
+      "templates/locker-dapp/README.md": "9c92407c963260d01546880bcf0b02e829106f4d98b12ffc8ae9487026928a3f",
+      "templates/locker-dapp/app/layout.tsx": "806a78943199cddbe9dc56447e677e4c4fa363e2922b6639277fdd452bdff3ec",
+      "templates/locker-dapp/app/locker/LockerClient.tsx": "10fa93f0021b5155c393324dd643f827f213ae3ae3bb6d94de82c66815621179",
+      "templates/locker-dapp/app/page.tsx": "e1068a0373a03124edd317797cdc9faca2ecae2376476dd2fba49a49a2d2f827",
+      "templates/locker-dapp/contract/package-lock.json": "7215fe63d9a8a5d1832afda03c9fa7c7951fb0d94bcdbbafb4239e0c1d39ba64",
+      "templates/locker-dapp/contract/package.json": "89a60a1ed388b2bb4cf07017cbc9d84bdd51d0f5d574886cd568095e336606a4",
+      "templates/locker-dapp/contract/src/index.ts": "07659ba3834253ccacb914fd6afcc565fbb70871b6303ec8eb1d13d29e4fe902",
+      "templates/locker-dapp/contract/src/locker.compact": "42c363ffd8cfba5ba88934ce5e9a13ff61655f68d5e3e2462ea187c1f7e3bcfc",
+      "templates/locker-dapp/contract/src/witnesses.ts": "8fae79bd7e460a402ef7961dd2186dc4e71b29d0a40233fb1673bae0d6a4adcc",
+      "templates/locker-dapp/lib/isomorphic-ws-fix.mjs": "2464ed6086f9b95223ddfafc14eb2c06dd175d621e3f5799f8765fcfef66f756",
+      "templates/locker-dapp/lib/locker.ts": "fd67fc31e028fd1d0ae1d4291c57441af808345e7f6c5fa44f06013d553ff1c4",
+      "templates/locker-dapp/lib/midnight.ts": "0eb814f4cc0e1c482810f2066bd19458be2c96ea95d047cdc9f38a26824fca1e",
+      "templates/locker-dapp/next-env.d.ts": "6363e6e9f553994c4cc027a1c17d2f9ad7816aca947838587b0fae8aaa38cd7e",
+      "templates/locker-dapp/next.config.mjs": "f14a2ef6939ad7ddf3eea4126cd57e2f9896e7b848ba591b34b7df3470e3c86d",
+      "templates/locker-dapp/package-lock.json": "18a55955d2bd6fdb7d9b1a5ee12d843daaa23b84eaecc6777d2b2e23763e8c7f",
+      "templates/locker-dapp/package.json": "15ab040df04dcc2577111a79c77a473094ebf402177f6ea49a9ceb5484cb5757",
+      "templates/locker-dapp/scripts/sync-zk-assets.mjs": "52052c60b552f9172accf31e3f567e969553675ca73fa4b9fab924e7b8d8f9e3",
+      "templates/locker-dapp/tsconfig.json": "ff85dfe75db26bf9c031c2a673ddf7692815707b57d6baa01e7a2f4213f32a54",
+      "templates/locker-dapp/tsconfig.tsbuildinfo": "c040c96b9d4c85431654415328d1e69b25f0d2890b5ded79ebfe7d6869c47e3b",
+      "templates/private-party-dapp/.gitignore": "dd771bfdf218797c486e57df8517614f532f1bf6578a8ebec25a02e9357e1b5b",
+      "templates/private-party-dapp/README.md": "ce24af4e30cbe6c5a46bcec43d81bc65c05b334803cb808d9cd853012ae63c79",
+      "templates/private-party-dapp/app/layout.tsx": "806a78943199cddbe9dc56447e677e4c4fa363e2922b6639277fdd452bdff3ec",
+      "templates/private-party-dapp/app/page.tsx": "d4e0579af7c65b920a248ee5154363f736d144caa769d95b1b6239cbc7c25d9a",
+      "templates/private-party-dapp/app/party/PartyClient.tsx": "1ab9042a1b5f6637fc6ec85bcae358233334dfed79099bba919ffb49f30a941c",
+      "templates/private-party-dapp/contract/package.json": "5655523ac4dfc41a3f71a64c9f1bd5abadbf9a741b64159d96f5351dde8e914a",
+      "templates/private-party-dapp/contract/src/index.ts": "34aead2d29b3945fa2e123ba79a4a6c332706ebb0677e254a0bde04d9527fb5a",
+      "templates/private-party-dapp/contract/src/private-party.compact": "21d18ad1d3cba29249936b514a705afef4e73c82d8b3eab62ec76e98ec7f0c5c",
+      "templates/private-party-dapp/lib/address.ts": "9a25d3b0512320cbda75c66cedd2511955dc9e831cb2dfaa1a1f92404f496230",
+      "templates/private-party-dapp/lib/isomorphic-ws-fix.mjs": "2464ed6086f9b95223ddfafc14eb2c06dd175d621e3f5799f8765fcfef66f756",
+      "templates/private-party-dapp/lib/midnight.ts": "0eb814f4cc0e1c482810f2066bd19458be2c96ea95d047cdc9f38a26824fca1e",
+      "templates/private-party-dapp/lib/party.ts": "3e641d5c5175133c86d406b5b78bdde356bb1ae62eea05b688e21ff393696e75",
+      "templates/private-party-dapp/lib/secret.ts": "f8cf45077005f0c6d4965ff0fdc821a708f01ce65dd6fe82ac900e8341a6a78d",
+      "templates/private-party-dapp/next-env.d.ts": "6363e6e9f553994c4cc027a1c17d2f9ad7816aca947838587b0fae8aaa38cd7e",
+      "templates/private-party-dapp/next.config.mjs": "f14a2ef6939ad7ddf3eea4126cd57e2f9896e7b848ba591b34b7df3470e3c86d",
+      "templates/private-party-dapp/package.json": "35fcdaa82b47b4e0fa9f7412f94730b1194f1e887ae36435c7a9e0fbb4034c3e",
+      "templates/private-party-dapp/scripts/sync-zk-assets.mjs": "08e136389f9200df29941230425f085ea8c9a7705e3fa981e273635716fca207",
+      "templates/private-party-dapp/tsconfig.json": "ff85dfe75db26bf9c031c2a673ddf7692815707b57d6baa01e7a2f4213f32a54"
+    },
+    "symlinks": {
+      ".claude/skills/gsap-core": "../../.agents/skills/gsap-core",
+      ".claude/skills/gsap-utils": "../../.agents/skills/gsap-utils"
+    }
+  },
+  "pins": [
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/compact-runtime"
+      ],
+      "expected": "^0.16.0"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/onchain-runtime-v3"
+      ],
+      "expected": "3.0.0"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-contracts"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-http-client-proof-provider"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-indexer-public-data-provider"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-level-private-state-provider"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-network-id"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-node-zk-config-provider"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-protocol"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-types"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-utils"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/wallet-sdk"
+      ],
+      "expected": "1.2.0"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/wallet-sdk-address-format"
+      ],
+      "expected": "3.1.2"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "overrides",
+        "@midnight-ntwrk/ledger-v8"
+      ],
+      "expected": "8.1.0"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "overrides",
+        "@midnight-ntwrk/midnight-js-network-id"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "overrides",
+        "@midnight-ntwrk/onchain-runtime-v3"
+      ],
+      "expected": "3.0.0"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "resolutions",
+        "@midnight-ntwrk/ledger-v8"
+      ],
+      "expected": "8.1.0"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "resolutions",
+        "@midnight-ntwrk/midnight-js-network-id"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package.json",
+      "keys": [
+        "resolutions",
+        "@midnight-ntwrk/onchain-runtime-v3"
+      ],
+      "expected": "3.0.0"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/compact-runtime",
+        "version"
+      ],
+      "expected": "0.16.0"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/ledger-v8",
+        "version"
+      ],
+      "expected": "8.1.0"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-contracts",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-http-client-proof-provider",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-indexer-public-data-provider",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-level-private-state-provider",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-network-id",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-node-zk-config-provider",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-protocol",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-types",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/midnight-js-utils",
+        "version"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/onchain-runtime-v3",
+        "version"
+      ],
+      "expected": "3.0.0"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "node_modules/@midnight-ntwrk/wallet-sdk",
+        "version"
+      ],
+      "expected": "1.2.0"
+    },
+    {
+      "path": "giwa-midnight/contract/src/managed/zkloan-credit-scorer/compiler/contract-info.json",
+      "keys": [
+        "compiler-version"
+      ],
+      "expected": "0.31.1"
+    },
+    {
+      "path": "giwa-midnight/contract/src/managed/zkloan-credit-scorer/compiler/contract-info.json",
+      "keys": [
+        "language-version"
+      ],
+      "expected": "0.23.0"
+    },
+    {
+      "path": "giwa-midnight/contract/src/managed/zkloan-credit-scorer/compiler/contract-info.json",
+      "keys": [
+        "runtime-version"
+      ],
+      "expected": "0.16.0"
+    },
+    {
+      "path": "giwa-midnight/api/package.json",
+      "keys": [
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-protocol"
+      ],
+      "expected": "4.1.1"
+    },
+    {
+      "path": "giwa-midnight/package-lock.json",
+      "keys": [
+        "packages",
+        "api",
+        "dependencies",
+        "@midnight-ntwrk/midnight-js-protocol"
+      ],
+      "expected": "4.1.1"
+    }
+  ],
+  "singleRuntime": {
+    "lockfile": "giwa-midnight/package-lock.json",
+    "package": "@midnight-ntwrk/onchain-runtime-v3"
+  },
+  "entrypoints": [
+    {
+      "path": "AGENTS.md",
+      "contains": [
+        "docs/ai/MIDNIGHT_REFERENCE_HARNESS.md",
+        "scripts/check-midnight-reference.mjs"
+      ]
+    },
+    {
+      "path": ".cursor/rules/gasok-midnight-reference.mdc",
+      "contains": [
+        "alwaysApply: true",
+        "docs/ai/MIDNIGHT_REFERENCE_HARNESS.md"
+      ]
+    },
+    {
+      "path": "giwa-midnight/AGENTS.md",
+      "contains": [
+        "../docs/ai/MIDNIGHT_REFERENCE_HARNESS.md",
+        "../scripts/check-midnight-reference.mjs"
+      ]
+    },
+    {
+      "path": "docs/ai/MIDNIGHT_REFERENCE_HARNESS.md",
+      "contains": [
+        "MIDNIGHT_SKILLS_REVIEW.md",
+        "check-midnight-reference.mjs"
+      ]
+    },
+    {
+      "path": "docs/ai/MIDNIGHT_SKILLS_REVIEW.md"
+    },
+    {
+      "path": "docs/ai/TODO.md",
+      "contains": [
+        "MIDNIGHT_SKILLS_REVIEW.md"
+      ]
+    },
+    {
+      "path": "docs/ai/CONTEXT.md",
+      "contains": [
+        "MIDNIGHT_REFERENCE_HARNESS.md"
+      ]
+    },
+    {
+      "path": "Dockerfile",
+      "contains": [
+        "midnightntwrk/proof-server:8.1.0",
+        "node:22.21.1-bookworm-slim"
+      ]
+    },
+    {
+      "path": "scripts/midnight-demo.mjs",
+      "contains": [
+        "midnightntwrk/proof-server:8.1.0"
+      ]
+    }
+  ]
+}

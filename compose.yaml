@@ -1,0 +1,153 @@
+# All state is scoped to this Compose project. No host wallet/DB is mounted.
+# Docker Compose v2; first start downloads images, packages and proof parameters.
+name: midproof-local
+services:
+  database:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: midproof_local
+      MYSQL_USER: midproof
+      MYSQL_PASSWORD: local-demo-only
+      MYSQL_ROOT_PASSWORD: local-demo-root-only
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/local/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD=$$MYSQL_PASSWORD mysql -u$$MYSQL_USER $$MYSQL_DATABASE -e "SELECT 1" >/dev/null 2>&1']
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    stop_grace_period: 30s
+
+  evm:
+    image: ghcr.io/foundry-rs/foundry:v1.8.3@sha256:2e4287278639262de76db72477301d5d3212fa1b1cce710d7d148750a46ce9e7
+    entrypoint: [anvil]
+    command: [--host, 0.0.0.0, --chain-id, '31337', --state, /data/state.json, --state-interval, '1', --preserve-historical-states, --silent]
+    user: '0:0'
+    volumes:
+      - evm-data:/data
+    healthcheck:
+      test: [CMD, cast, chain-id, --rpc-url, 'http://127.0.0.1:8545']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    stop_grace_period: 30s
+
+  evm-setup:
+    build:
+      context: .
+      dockerfile: docker/local/contracts.Dockerfile
+    environment:
+      MIDPROOF_LOCAL_DEMO: 'true'
+      MIDNIGHT_NETWORK_ID: undeployed
+      GIWA_RPC_URL: http://evm:8545
+      MIDPROOF_LOCAL_CONFIG_DIR: /demo-config
+    volumes:
+      - demo-config:/demo-config
+    depends_on:
+      evm:
+        condition: service_healthy
+
+  midnight-node:
+    image: midnightntwrk/midnight-node:1.0.0
+    environment:
+      CFG_PRESET: dev
+      BASE_PATH: /node/chain
+      SIDECHAIN_BLOCK_BENEFICIARY: 04bcf7ad3be7a5c790460be82a713af570f22e0f801f6659ab8e84a52be6969e
+    volumes:
+      - midnight-chain:/node/chain
+    healthcheck:
+      test: [CMD, curl, -f, 'http://localhost:9944/health']
+      interval: 3s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+    stop_grace_period: 30s
+
+  indexer:
+    image: midnightntwrk/indexer-standalone:4.3.3
+    restart: on-failure:10
+    environment:
+      APP__APPLICATION__NETWORK_ID: undeployed
+      APP__INFRA__NODE__URL: ws://midnight-node:9944
+      APP__INFRA__SPO_NODE__URL: ws://midnight-node:9944
+      APP__INFRA__SPO_NODE__BLOCKFROST_ID: local-no-spo
+      APP__INFRA__STORAGE__PASSWORD: local-indexer-only
+      APP__INFRA__PUB_SUB__PASSWORD: local-indexer-only
+      APP__INFRA__LEDGER_STATE_STORAGE__PASSWORD: local-indexer-only
+      APP__INFRA__SECRET: '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff'
+      RUST_LOG: warn
+    volumes:
+      - indexer-data:/data
+    depends_on:
+      midnight-node:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD-SHELL, 'test -f /var/run/indexer-standalone/running']
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    stop_grace_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: local-demo
+    environment:
+      NODE_ENV: production
+      MIDPROOF_LOCAL_DEMO: 'true'
+      MIDNIGHT_NETWORK_ID: undeployed
+      # Public local genesis seed from the official standalone development stack.
+      MIDPROOF_LOCAL_WALLET_SEED: '0000000000000000000000000000000000000000000000000000000000000001'
+      MIDNIGHT_NODE_URL: http://midnight-node:9944
+      MIDNIGHT_INDEXER_URL: http://indexer:8088/api/v4/graphql
+      MIDNIGHT_INDEXER_WS_URL: ws://indexer:8088/api/v4/graphql/ws
+      MIDNIGHT_DEMO_ALLOWED_ORIGINS: http://localhost:${MIDPROOF_WEB_PORT:-5173},http://127.0.0.1:${MIDPROOF_WEB_PORT:-5173}
+      CORS_ALLOWED_ORIGINS: http://localhost:${MIDPROOF_WEB_PORT:-5173},http://127.0.0.1:${MIDPROOF_WEB_PORT:-5173}
+      MIDNIGHT_DEMO_STATE_DIR: /data/midnight-demo
+      MIDNIGHT_DEMO_MANAGE_DATABASE: 'false'
+      MIDNIGHT_DEMO_BOOTSTRAP: 'false'
+      MIDNIGHT_DEMO_PORT: '8080'
+      MIDNIGHT_SPRING_PORT: '8081'
+      DB_HOST: database
+      DB_PORT: '3306'
+      DB_NAME: midproof_local
+      DB_USERNAME: midproof
+      DB_PASSWORD: local-demo-only
+      GIWA_MIN_CONFIRMATIONS: '1'
+    volumes:
+      - app-data:/data
+      - demo-config:/demo-config:ro
+    depends_on:
+      database:
+        condition: service_healthy
+      evm-setup:
+        condition: service_completed_successfully
+      indexer:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, curl, -fsS, 'http://127.0.0.1:8080/health']
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 60s
+    stop_grace_period: 60s
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/local/web.Dockerfile
+    ports:
+      - '127.0.0.1:${MIDPROOF_WEB_PORT:-5173}:80'
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  mysql-data:
+  evm-data:
+  demo-config:
+  midnight-chain:
+  indexer-data:
+  app-data:

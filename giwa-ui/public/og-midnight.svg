@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">MidProof — Private numbers. Clear answers.</title>
+  <desc id="description">Financial eligibility with Midnight. Synthetic companies, fictional attester, real ZK proofs.</desc>
+  <rect width="1200" height="630" fill="#0a1114"/>
+  <path d="M820 0H1200V630H1060L820 390Z" fill="#111f24"/>
+  <path d="M960 0H1200V630H1185L960 260Z" fill="#152b2e"/>
+  <g transform="translate(72 58) scale(.75)"><rect width="64" height="64" rx="16" fill="#79e2cd"/><path d="M16 46V20L31 35L48 18V46" fill="none" stroke="#102b29" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/></g>
+  <text x="137" y="94" fill="#f1f7f7" font-family="Arial,Helvetica,sans-serif" font-size="38" font-weight="700" letter-spacing="-1.4">MidProof</text>
+  <text x="72" y="225" fill="#f1f7f7" font-family="Arial,Helvetica,sans-serif" font-size="68" font-weight="700" letter-spacing="-2">Private numbers.</text>
+  <text x="72" y="307" fill="#79e2cd" font-family="Arial,Helvetica,sans-serif" font-size="68" font-weight="700" letter-spacing="-2">Clear answers.</text>
+  <text x="75" y="371" fill="#a7b8bf" font-family="Arial,Helvetica,sans-serif" font-size="25">Financial eligibility, proven with Midnight.</text>
+  <g transform="translate(918 224) scale(2.5)"><rect width="64" height="64" rx="16" fill="#79e2cd"/><path d="M16 46V20L31 35L48 18V46" fill="none" stroke="#102b29" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/></g>
+  <path d="M72 461H1128" stroke="#2d4149"/>
+  <text x="75" y="510" fill="#f1f7f7" font-family="Arial,Helvetica,sans-serif" font-size="21">Synthetic companies. Fictional attester. Real ZK proofs.</text>
+  <text x="75" y="552" fill="#a7b8bf" font-family="Arial,Helvetica,sans-serif" font-size="18">HACKATHON DEMO</text>
+</svg>

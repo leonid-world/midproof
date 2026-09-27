@@ -1,0 +1,17 @@
+---
+description: GASOK project context and audited Midnight reference entry point
+alwaysApply: true
+---
+
+Follow the root `AGENTS.md`. At the start of every task, including follow-up
+prompts, read `docs/ai/MIDNIGHT_REFERENCE_HARNESS.md` and the latest entries in
+`docs/ai/TODO.md` and `docs/ai/CONTEXT.md`.
+
+For Midnight-related work, run `node scripts/check-midnight-reference.mjs`
+from the GASOK root, then read the task-matched review, source and tests.
+`Midnight-Skills/` is community reference material; its install commands,
+network defaults and application templates do not override GASOK decisions.
+Do not bulk-install its skills. Keep Vue, Preview-only demo deployments,
+existing GIWA asset flows, authenticated request/session binding and synthetic
+data. Missing references or version drift require a scoped recheck; they do
+not authorize pulling, upgrading or redeploying.

@@ -1,0 +1,28 @@
+# Activated by the shared Midnight Demo IntelliJ Run configuration.
+# The public Node gateway listens on 8080. Spring only handles authenticated
+# public request context on its internal port; financial inputs never pass here.
+server:
+  address: 127.0.0.1
+  port: ${MIDNIGHT_SPRING_PORT:8081}
+
+spring:
+  autoconfigure:
+    # The demo uses the existing JWT accounts, so no unused default user is needed.
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+  datasource:
+    url: "jdbc:mysql://${DB_HOST:${MYSQLHOST:127.0.0.1}}:${DB_PORT:${MYSQLPORT:3307}}/${DB_NAME:${MYSQLDATABASE:gasok_midnight_demo}}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+    username: ${DB_USERNAME:${MYSQLUSER:gasok_demo}}
+    # This default is exclusively for the isolated, loopback local demo database.
+    password: ${DB_PASSWORD:${MYSQLPASSWORD:gasok-demo-local-only}}
+
+app:
+  midnight:
+    demo-enabled: true
+    network-id: ${MIDNIGHT_NETWORK_ID:preview}
+    deployment-manifest: ${MIDNIGHT_DEPLOYMENT_MANIFEST:auto}
+    read-api-url: ${MIDNIGHT_READ_API_URL:http://127.0.0.1:${MIDNIGHT_DEMO_PORT:8080}}
+    runtime:
+      enabled: ${MIDNIGHT_RUNTIME_ENABLED:true}
+      node-executable: ${MIDNIGHT_NODE_EXECUTABLE:node}
+      runner-path: ${MIDNIGHT_RUNNER_PATH:}
+      public-port: ${MIDNIGHT_DEMO_PORT:8080}

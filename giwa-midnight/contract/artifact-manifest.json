@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "versions": {
+    "compiler-version": "0.31.1",
+    "language-version": "0.23.0",
+    "runtime-version": "0.16.0"
+  },
+  "sources": {
+    "src/schnorr.compact": "b9890f538328bb9943b69a83c9f529555fb8e733dcad5cf7213306374247f357",
+    "src/zkloan-credit-scorer.compact": "157b55552d515bf46e0e36265853f46ce0dc750c81856086d68cef873bee9a75"
+  },
+  "artifacts": {
+    "src/managed/zkloan-credit-scorer/compiler/contract-info.json": "bb5631d711151c8409cb1cc8234d929481bd9c05dc2ff484f850e4f1555ca527",
+    "src/managed/zkloan-credit-scorer/contract/index.d.ts": "a873868241c35517d29e574701c15ce7e416e0a7f33c46d2d90067d7156e3b14",
+    "src/managed/zkloan-credit-scorer/contract/index.js": "1dd79bbbf06991e27eb60d82ddc425f55aa9353e001a8def5ba99ae2f2df5f33",
+    "src/managed/zkloan-credit-scorer/contract/index.js.map": "d4405e017ba1bda927568c7f0cbd83e8e82230714df8f5b0c36b122e8df6c740",
+    "src/managed/zkloan-credit-scorer/keys/registerProvider.prover": "0a8259b3a268873b7a235ec5c11e1317e686e9374540ae35a8a79a158132e1e2",
+    "src/managed/zkloan-credit-scorer/keys/registerProvider.verifier": "7c7fbf86b5d687a7845bafc98c0a42053add38fffb6c11d0518e9939d040aa29",
+    "src/managed/zkloan-credit-scorer/keys/removeProvider.prover": "22c0d90fc2d3a0f2f096074c6d933e375d663cdb954188a327d5406da9d502c8",
+    "src/managed/zkloan-credit-scorer/keys/removeProvider.verifier": "119b941c99880a7a422d1f4b3a788032b8718aa16ecf2c344e763868ecb95d42",
+    "src/managed/zkloan-credit-scorer/keys/rotateAdmin.prover": "021c2570bb0be96bda9ab78fdf8996e93e14b4c19a1ad2ac92039e694dc39b51",
+    "src/managed/zkloan-credit-scorer/keys/rotateAdmin.verifier": "398b0c97c116f70a78ddeff8d2e3a0611d794b50c968f3d57e14a6953db868ff",
+    "src/managed/zkloan-credit-scorer/keys/verifyEligibility.prover": "53d134b5f43f917d500999f88d7017895c55c51f062c73e3f6862d3f3f113123",
+    "src/managed/zkloan-credit-scorer/keys/verifyEligibility.verifier": "035debadf768d2e72ae8dcf712eb2607c0e64181e029b4689bdbb294a74fc508",
+    "src/managed/zkloan-credit-scorer/zkir/registerProvider.bzkir": "18d2e313a1541ec3942bc9970dacd513c93e804c90e8ba0585b047db78524297",
+    "src/managed/zkloan-credit-scorer/zkir/registerProvider.zkir": "e5763d2b5b55dd4d8b22ccdd3306edbf24c73a4eb9ec8282e7b6d3f2678386ea",
+    "src/managed/zkloan-credit-scorer/zkir/removeProvider.bzkir": "53900d713b34fda75a117c6729bb2d72b1edad3ed4a3e4688c9763f195aadf52",
+    "src/managed/zkloan-credit-scorer/zkir/removeProvider.zkir": "e9fad6237a62070bd14bcf6122daebce51529969d9a54fdda6a859ae0aadcbdc",
+    "src/managed/zkloan-credit-scorer/zkir/rotateAdmin.bzkir": "afd2733d721673b8ea9bd9be2bc7b54ae1aab16fcc0f2b6e6f5681c126621683",
+    "src/managed/zkloan-credit-scorer/zkir/rotateAdmin.zkir": "c37c46a380a56519b4980acbd30d241afc6791237843347f59aaa7f526d88b8d",
+    "src/managed/zkloan-credit-scorer/zkir/verifyEligibility.bzkir": "6cdabae3339e763c1f4542d27a358519c0f7b556aa9a6b9fed34c6a80247aa8c",
+    "src/managed/zkloan-credit-scorer/zkir/verifyEligibility.zkir": "b9cc048fce2f223fb3b6302da20d005c9906bd073f136d4a51d983923840933a"
+  }
+}

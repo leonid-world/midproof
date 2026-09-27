@@ -1,0 +1,32 @@
+{
+  ".": {
+    "url": "https://github.com/leonid-world/giwa-ai.git",
+    "baseCommit": "a4cdb7746d9aba80ff6920cab69679a28fe68148",
+    "files": 61,
+    "includesWorkingTreeChanges": true
+  },
+  "giwa-ui": {
+    "url": "https://github.com/leonid-world/giwa-ui.git",
+    "baseCommit": "d223f0a2a650c23bb33845f5a0bca1c9a5a7d3ad",
+    "files": 130,
+    "includesWorkingTreeChanges": true
+  },
+  "giwa-api": {
+    "url": "https://github.com/leonid-world/giwa-api.git",
+    "baseCommit": "6637fefed90469d0765bfad39814f81e88330f13",
+    "files": 114,
+    "includesWorkingTreeChanges": true
+  },
+  "giwa-midnight": {
+    "url": "https://github.com/leonid-world/giwa-midnight.git",
+    "baseCommit": "6c12b35acc64614ac53f4e3836fac0f8a8738a77",
+    "files": 148,
+    "includesWorkingTreeChanges": true
+  },
+  "giwa-contrract": {
+    "url": "https://github.com/leonid-world/giwa-contract.git",
+    "baseCommit": "b15a2fbc5bb10e665a8093f5e60a8a0e9c6e099d",
+    "files": 19,
+    "includesWorkingTreeChanges": true
+  }
+}

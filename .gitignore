@@ -1,0 +1,16 @@
+# Local-only state and credentials for the managed Midnight demo.
+/.local/
+/.env
+/.env.*
+!/.env.example
+/.DS_Store
+**/.vercel/
+**/.DS_Store
+**/*.log
+**/node_modules/
+**/.gradle/
+**/build/
+**/dist/
+**/reports/
+**/*.pem
+**/*.key

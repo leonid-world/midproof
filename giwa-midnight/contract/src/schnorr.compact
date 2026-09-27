@@ -1,0 +1,87 @@
+// Schnorr Signature Verification Polyfill for Jubjub Curve
+// Temporary: will be replaced by jubjubSchnorrVerify from CompactStandardLibrary
+// when it becomes available in a future Compact compiler release.
+// See: https://github.com/LFDT-Minokawa/compact/blob/25b22e3/compiler/standard-library.compact
+
+module schnorr {
+  import CompactStandardLibrary;
+
+  export struct SchnorrSignature {
+    announcement: JubjubPoint;
+    response: Field;
+  }
+
+  struct SchnorrHashInput<#n> {
+    ann_x: Field;
+    ann_y: Field;
+    pk_x: Field;
+    pk_y: Field;
+    msg: Vector<n, Field>;
+  }
+
+  // The witness provides the quotient and remainder of dividing the challenge hash
+  // by 2^248, so we can truncate it to fit in Jubjub's scalar field.
+  witness getSchnorrReduction(challengeHash: Field): [Uint<7>, Uint<248>];
+
+  // The native field's canonical maximum is
+  // 115 * 2^248 + MAX_LAST_LIMB. Bound both limbs before using Field
+  // arithmetic so reconstruction cannot wrap modulo the native field.
+  // Together with equality this proves the unique integer quotient/remainder,
+  // rather than relying on the off-chain witness to divide honestly.
+  export pure circuit reduceChallenge(
+    challengeHash: Field,
+    quotient: Uint<7>,
+    remainder: Uint<248>
+  ): Field {
+    const MAX_LAST_LIMB: Uint<248> =
+      419897588050555816515462086314444731729426576509415695503572133883854979072;
+    const TWO_248: Field =
+      452312848583266388373324160190187140051835877600158453279131187530910662656 as Field;
+    assert(quotient <= 115, "Challenge quotient is out of range");
+    assert(quotient != 115 || remainder <= MAX_LAST_LIMB,
+           "Challenge decomposition is not canonical");
+    assert((quotient as Field) * TWO_248 + (remainder as Field) == challengeHash,
+           "Invalid challenge reduction");
+    return remainder as Field;
+  }
+
+  export circuit schnorrVerify<#n>(
+                   msg: Vector<n, Field>,
+                   signature: SchnorrSignature,
+                   pk: JubjubPoint
+                   ): [] {
+    const {announcement, response} = signature;
+    const cFull: Field =
+            transientHash<SchnorrHashInput<n>>(
+              SchnorrHashInput<n> { ann_x: jubjubPointX(announcement),
+                                    ann_y: jubjubPointY(announcement),
+                                    pk_x: jubjubPointX(pk),
+                                    pk_y: jubjubPointY(pk),
+                                    msg: msg }
+              );
+    // Keep the existing 248-bit signing protocol, with canonical reduction
+    // constrained independently of the witness's implementation.
+    const [q, cTruncated] = getSchnorrReduction(cFull);
+    const c = reduceChallenge(cFull, disclose(q), disclose(cTruncated));
+    const lhs: JubjubPoint = ecMulGenerator(response);
+    const rhs: JubjubPoint = ecAdd(announcement, ecMul(pk, c));
+    assert(jubjubPointX(lhs) == jubjubPointX(rhs) && jubjubPointY(lhs) == jubjubPointY(rhs),
+           "Invalid attestation signature");
+  }
+
+  export pure circuit schnorrChallenge(
+                        ann_x: Field,
+                        ann_y: Field,
+                        pk_x: Field,
+                        pk_y: Field,
+                        msg: Vector<11, Field>
+                        ): Field {
+    const cFull: Field =
+            transientHash<SchnorrHashInput<11>>(
+              SchnorrHashInput<11> { ann_x: ann_x, ann_y: ann_y, pk_x: pk_x, pk_y: pk_y, msg: msg }
+              );
+    // Return the full hash. Callers must truncate to 248 bits (mod 2^248)
+    // to match schnorrVerify's challenge reduction.
+    return cFull;
+  }
+}

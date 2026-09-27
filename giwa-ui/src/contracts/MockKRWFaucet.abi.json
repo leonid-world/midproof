@@ -1,0 +1,9 @@
+[
+  "function paymentToken() view returns (address)",
+  "function claimAmount() view returns (uint256)",
+  "function hasClaimed(address account) view returns (bool)",
+  "function claim()",
+  "event Claimed(address indexed account, uint256 amount)",
+  "error AlreadyClaimed(address account)",
+  "error FaucetDepleted(uint256 available, uint256 required)"
+]

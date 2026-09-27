@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Midnight Demo" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="midnight-demo" />
+    <module name="giwa-api.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.leonid.giwaapi.GiwaApiApplication" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/giwa-api" />
+    <envs>
+      <env name="MIDNIGHT_DEMO_PORT" value="18080" />
+      <env name="MIDNIGHT_SPRING_PORT" value="18081" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
