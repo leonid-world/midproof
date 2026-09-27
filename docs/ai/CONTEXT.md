@@ -15,9 +15,16 @@ Spring request and GIWA asset flows retain their existing boundaries. Local
 Compose alone uses independent EVM31337 and Midnight undeployed genesis; hosted
 Preview keeps existing wallet/contract/DB and one writer.
 
-Implementation/tests are underway. API120/UI272 passed; local EVM actual
-fixture lifecycle and restart passed. Source publication, actual proof/browser
-and fresh-clone acceptance remain pending. Current evidence is
+Public source is published through 7492d13; API120/UI286/Midnight506/root62
+checks passed (974 distinct). Local actual Seller/Buyer × true/false passed
+through HTTP and browser. Anonymous fresh clone with independent empty volumes
+also passed four real proofs and complete-stack restart with identical results.
+Original state was not mounted. Railway deployment9bc10a87 is ready on the same
+Preview contract, while walletless activation waits for the new GIWA fixture.
+Vercel deployment dpl_8Ms7AXf6vpQRQnw3Bs47BW6bHDDN is READY with --skip-domain;
+the public alias still serves its old frontend. Faucet reCAPTCHA action consent
+is pending. New repository Git deployment connection and public proof acceptance
+remain to do. Current evidence is
 [MIDPROOF_RELEASE_2026-09-27.md](MIDPROOF_RELEASE_2026-09-27.md).
 
 ## 2026-09-18 Live rehearsal in progress

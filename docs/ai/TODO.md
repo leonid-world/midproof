@@ -7,12 +7,14 @@
 
 - [x] `leonid-world/midproof` 공개 저장소 생성, 네 프로젝트 일반 폴더로 이관.
 - [x] 기반 커밋·재사용 범위·Midnight 기여와 upstream 라이선스 기록.
-- [x] 전용 데모 로그인·지갑 없는 화면·세션 격리 구현, Spring120/UI272 회귀.
+- [x] 전용 데모 로그인·지갑 없는 화면·세션 격리 구현, 자동 검사 974개 통과.
 - [x] 독립 로컬 EVM의 실제 합성 채권 생성/확인/NFT 및 재시작 재사용.
-- [ ] 최종 Node 리뷰·회귀·통합 빌드 및 실제 로컬 네 시나리오 증명.
+- [x] 최종 Node 리뷰·회귀·통합 빌드 및 실제 로컬 HTTP/브라우저 네 시나리오 증명.
 - [ ] 새 전용 Preview 역할 지갑/합성 채권 준비, 기존 상태 보존.
-- [ ] 공개 소스 게시·anonymous fresh clone·Compose 실행과 복구 검증.
+- [x] 공개 소스 게시·anonymous fresh clone·Compose 실행과 네 실제 결과/전체 재시작 복구 검증.
 - [ ] 기존 Vercel/Railway 공개 배포 및 브라우저 실제 증명·독립 조회 검증.
+  Railway 신규 backend 배포/ready 완료, Vercel 새 빌드 READY이나 공개 alias 승격 전.
+  전용 GIWA 지갑 테스트 ETH faucet reCAPTCHA 실행 동의 대기. 소스 자동배포 연결도 남음.
 
 아래 9/18 일반 GIWA 전체 펀딩/상환 리허설은 별도 기록이며 이 데모 완료와
 혼동하지 않는다. 해커톤 제출 폼 전송은 이번 작업에 포함되지 않았다.

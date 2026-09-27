@@ -1,9 +1,9 @@
 # Isolated local demo validation — 2026-09-27
 
-Status: **four real proofs and full-stack restart passed; fresh-clone acceptance
-in progress**. This is actual Local Devnet evidence, not Preview or public-site
-verification. The original GASOK directory, database, wallet and Railway state
-were not mounted or started.
+Status: **local HTTP, browser, full-stack restart and anonymous fresh-clone
+acceptance passed**. This is actual Local Devnet evidence, not Preview or
+public-site verification. The original GASOK directory, database, wallet and
+Railway state were not mounted or started.
 
 ## Environment and automatic setup
 
@@ -80,6 +80,24 @@ the rejection without creating another proof. They are now regression fixtures;
 the parser preserves the complete Ledger ID and rejects malformed metadata.
 Backend proof results were already complete and were retained during the fix.
 
+## Browser acceptance
+
+The real browser then completed all four scenarios through the Vue demo,
+including its explicit consent, automatic polling and independent read display:
+
+| Role / fixture | Eligible | Transaction | Local block |
+| --- | --- | --- | --- |
+| Seller / steady | true | `00199bff62411562c2b00fa3d18d612a309befd07c5514b1472d768bbad1f7518f` | 179 |
+| Seller / stretched | false | `00251186cae4b573a6fff89d71a99f94960b250b0f852a618da55b1a280bc2d403` | 234 |
+| Buyer / steady | true | `006db15d13226bd0ff93cb80669d86429c6068e2ffb58f5d89677cf370d6e37b17` | 245 |
+| Buyer / stretched | false | `002f86fc825bb4709eb33a6039bf81f9f2878c1b7beac86c42162792f8294df52e` | 261 |
+
+Seller / steady was originally proved before the frontend ID fix. Reloading
+the corrected UI retained its login session, recovered the exact original run
+and transaction, and displayed the completed result without another proof.
+Both true and false labels were checked in the browser; false was presented as
+a valid unmet-criteria result, not an error.
+
 ## Automated checks
 
 - Root runner/fixture/local-profile checks: **16/16 pass**.
@@ -93,11 +111,43 @@ Backend proof results were already complete and were retained during the fix.
 An HTTPS clone with credential helpers and extra authentication headers disabled
 retrieved public commit `996d5dea961ff1bd9a1e2589aeb11b3c43476bfa` into a new
 temporary directory. Git status was clean; the checkout was approximately
-38 MB. It had no developer ignored files or prior runtime volumes. Build and
-actual new-volume startup are being checked separately from the first stack.
+38 MB. It had no developer ignored files or prior runtime volumes. Docker image
+and build caches were available; application data, local chain, database,
+signers, provider and wallet state were all new independent named volumes.
+The final frontend fix was fetched anonymously as
+`7492d13dd2129bbefab99510b3ab594d033c8166`; all three images rebuilt successfully
+from that clean public checkout. Fresh startup uses project
+`midproof-clone-20260927` and loopback port 25174.
 
-## Remaining acceptance checks
+This command completed automatic setup without a manually created `.env`, key,
+account, database row, faucet transfer or MetaMask operation:
 
-- Browser Seller/Buyer × steady/stretched true/false through the new route.
-- Actual fresh clone with no author ignored files and independent new volumes.
-- Public Preview/site verification is a separate report and not implied here.
+```sh
+MIDPROOF_WEB_PORT=25174 docker compose -p midproof-clone-20260927 up --build -d
+```
+
+It created a different GIWA fixture at
+`0x98075acef2efbec6450a1eab1ec4b1e3e29357b0` (receivable 1), and a different
+Midnight contract at
+`4201cfb7d894a148d52eac2ea5044a00461af280c393dbd46ea1e3c3f7e4b13d`.
+The same authenticated HTTP acceptance harness then passed all four real proofs:
+
+| Role / fixture | Eligible | Transaction | Local block |
+| --- | --- | --- | --- |
+| Seller / steady | true | `001fa6737b8d277c0db884f61ead666d248902819b4b41fada5a611404781bc5ea` | 12 |
+| Seller / stretched | false | `00c6d177ba0633f6648af2040bbaab1b73b9942870c1f6c8486e71c0c48dc218bb` | 16 |
+| Buyer / steady | true | `00140e3ac1b81bb32b95acaa2408730cd383217ecbcc2f6e79a14322df4811d843` | 20 |
+| Buyer / stretched | false | `00bbe9a3b0dd4f8f2ba4221966962a22d3582d48f9ae9a8762f0b86cc63297bed0` | 24 |
+
+The fresh-clone stack also passed a complete stop/up cycle, retaining the same
+login JWTs in the test client's memory. Every status and recover call returned
+the same transaction, block and eligible value without another proof. The
+consent, asset-route denial, cross-session denial and idempotency checks passed
+again. Git status in the anonymous checkout remained clean after Docker builds
+and both runs. Runtime license files were independently checked inside the
+distributed image with networking disabled.
+
+## Scope limit
+
+Public Preview/site verification is a separate report and is not implied by
+these local checks.
