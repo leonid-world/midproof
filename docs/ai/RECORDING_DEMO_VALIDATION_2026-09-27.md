@@ -98,4 +98,21 @@ The app also redirects protected routes to login when another tab clears the
 session. A separate regression reproduced the blank protected route before this
 redirect and passes afterward. Final checks passed all347tests/40files,
 recording-enabled production build, full read-only ESLint/Oxlint and diff checks.
-Public deployment acceptance is pending; these checks do not claim a rollout.
+
+Public acceptance after deploying implementation
+`b509f27510c28a5cc5deab9f62a8497b698316ca`:
+
+- Vercel `dpl_2M7TZPrzAFA8BxfWVgw3bA1Nn5hH` Ready on
+  `https://midproof.vercel.app`; Railway
+  `08c349e5-458b-4050-84eb-b5c81be36450` SUCCESS. Both commit statuses succeeded.
+- In the public browser, Seller → Buyer → Funder → Seller each opened Profile
+  with the correct account and logged out to the login screen without freezing.
+- Funder's Dashboard logout returned to login. Walletless Demo Start → Exit →
+  Demo Start succeeded; company/criteria/consent controls became enabled.
+- With Seller Profile open in one tab and Dashboard in another, Dashboard
+  logout returned **both tabs** to login. No blank protected screen remained.
+- Browser captured error/warning logs were empty. Backend `/ready` returned
+  `{"proofReady":true,"stage":"ready"}` after deployment.
+
+No MetaMask permission, wallet signing or financial transaction was performed.
+Documentation-only commits after b509f27 may redeploy identical application code.

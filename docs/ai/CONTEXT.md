@@ -16,7 +16,11 @@ including repeated tokens, so stale API and wallet responses remain rejected.
 The app redirects protected routes to login on session loss, including logout
 from another tab. That regression failed before the redirect and passed afterward.
 All347tests/40files, recording-enabled production build and full lint pass.
-Public deployment acceptance is tracked in TODO and
+Implementation b509f27 is deployed through the existing Vercel/Railway projects.
+Public browser acceptance covered Seller→Buyer→Funder→Seller Profile logout and
+correct account re-entry, Dashboard logout, walletless exit/re-entry with enabled
+criteria, and another tab's logout returning both pages to login. No browser
+errors/warnings were recorded; backend proofReady=true. Details are in
 RECORDING_DEMO_VALIDATION_2026-09-27.md. There is no architecture,
 backend, contract, stored wallet or financial transaction change.
 
