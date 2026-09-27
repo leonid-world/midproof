@@ -1,5 +1,30 @@
 # Current Context
 
+## 2026-09-27 Simplified demo and editable verification criteria
+
+The owner requested substantially less explanation and an easier demo, especially
+criteria that can be changed. Work is in the MidProof monorepo; original GASOK
+remains untouched. Login has one demo action, the main view focuses on company,
+criteria and result, and technical evidence/disclosures use optional details.
+Presets and exact direct threshold inputs reuse the existing dynamic Compact
+policy protocol. Synthetic financial fixtures, actual proof/chain/independent
+read behavior, consent, authenticated session isolation and encrypted recovery
+remain. Criteria edits reset consent; submission/recovery preserve the exact
+policy and its idempotency identity. No Compact or architecture change/ADR.
+
+Actual browser proofs on the preserved isolated local stack at localhost:25175
+verified Seller/company A with strict 10억/100%/0 criteria as false (block1179),
+and edited 7.5억/175.25%/2 criteria as true (block1186). These are real Local
+Devnet results, not public Preview acceptance. Final Vue319 across36files,
+production build/full lint, CLI54, Compact39, feature-flag CLI gateway/walletless50
+and view9 checks passed; the scopes overlap. App/web image rebuild and actual app restart
+passed, readiness returned true, and the browser recovered the exact custom
+criteria/result/transaction/block1186 without reproof. Final web image and
+1280×720 desktop/390×844 mobile visual checks passed: no horizontal overflow,
+start button visible without scrolling, mobile header on one row. This change's
+public rollout has not yet been recorded. Exact evidence and remaining
+checks: [DEMO_UX_VALIDATION_2026-09-27.md](DEMO_UX_VALIDATION_2026-09-27.md).
+
 ## 2026-09-27 Submission readiness audit
 
 The two requested technical deliverables are accepted: walletless hosted

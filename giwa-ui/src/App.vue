@@ -57,7 +57,7 @@ watch(
   <div class="app-shell" :class="{ 'authenticated-shell': showAuthenticatedLayout }">
     <a class="skip-link" href="#main-content">본문 바로가기</a>
     <header v-if="showAuthenticatedLayout" class="session-bar" aria-label="애플리케이션 헤더">
-      <div class="session-bar__inner">
+      <div class="session-bar__inner" :class="{ 'demo-header': auth.isDemoSession }">
         <RouterLink class="app-brand" :to="{ name: auth.isDemoSession ? 'demo' : 'dashboard' }">
           <img
             class="midnight-wordmark"
@@ -93,9 +93,9 @@ watch(
             내 정보
           </RouterLink>
         </nav>
-        <span v-else class="demo-session-label">실제 ZK 증명 체험</span>
+        <span v-else class="demo-session-label">데모</span>
         <button v-if="auth.isDemoSession" class="demo-exit" type="button" @click="leaveDemo">
-          데모 나가기
+          나가기
         </button>
         <RouterLink
           v-else
@@ -142,6 +142,17 @@ watch(
   color: var(--color-text);
   background: var(--color-surface);
   cursor: pointer;
+}
+.demo-header {
+  grid-template-columns: auto 1fr auto;
+}
+.demo-header .demo-session-label {
+  justify-self: start;
+  font-size: 12px;
+}
+.demo-exit:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .app-shell {
@@ -333,6 +344,10 @@ watch(
 
   .session-account {
     justify-self: end;
+  }
+
+  .session-bar__inner.demo-header {
+    grid-template-columns: auto 1fr auto;
   }
 }
 

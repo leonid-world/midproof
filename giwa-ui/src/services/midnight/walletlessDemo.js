@@ -1,4 +1,5 @@
 import { apiRequest } from '../api'
+import { isDemoPolicy } from './demoPolicy'
 
 const BASE = '/midnight-proof/v2'
 const STATES = new Set([
@@ -101,9 +102,7 @@ export function parseDemoRun(value, { config, expected } = {}) {
     !['receivableFinanceAddress', 'partyWallet', 'intendedFunderWallet'].every(
       (key) => ADDRESS.test(value[key]) && !/^0x0+$/.test(value[key]),
     ) ||
-    value.minAnnualRevenueKrw !== '500000000' ||
-    value.maxDebtRatioBps !== '20000' ||
-    value.maxOverdueCount !== '1' ||
+    !isDemoPolicy(value) ||
     BigInt(value.validUntil) > 8_640_000_000_000n
   )
     throw invalid()

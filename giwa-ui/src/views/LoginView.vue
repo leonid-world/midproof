@@ -17,6 +17,7 @@ import { isMidnightDemoEnabled } from '../services/midnight/config'
 const router = useRouter()
 const auth = useAuthStore()
 const isSignup = ref(false)
+const showAccountForm = ref(!isMidnightDemoEnabled)
 const email = ref('')
 const password = ref('')
 const userName = ref('')
@@ -25,11 +26,12 @@ const businessNumber = ref('')
 const errorMessage = ref('')
 const isSubmitting = ref(false)
 
-async function loginDemo(role) {
+async function loginDemo() {
+  if (isSubmitting.value) return
   errorMessage.value = ''
   isSubmitting.value = true
   try {
-    await auth.loginDemo(role.toUpperCase())
+    await auth.loginDemo('FUNDER')
     await router.push({ name: 'demo' })
   } catch (error) {
     errorMessage.value = error.message
@@ -64,6 +66,12 @@ function toggleMode() {
   errorMessage.value = ''
 }
 
+function toggleAccountForm() {
+  showAccountForm.value = !showAccountForm.value
+  isSignup.value = false
+  errorMessage.value = ''
+}
+
 function updateBusinessNumber(event) {
   businessNumber.value = formatBusinessNumber(event.target.value)
 }
@@ -83,8 +91,8 @@ function updateBusinessNumber(event) {
           />
         </div>
         <p class="story-eyebrow">PRIVATE FINANCIAL PROOFS</p>
-        <h1 id="intro-title">재무정보는 비공개로.<br /><span>신뢰는 증명으로.</span></h1>
-        <p class="story-description">재무 원문 대신, 기준 충족 여부를 ZK 증명으로 전달합니다.</p>
+        <h1 id="intro-title">재무정보는 비공개로.<br /><span>결과만 확인하세요.</span></h1>
+        <p class="story-description">기준을 정하면 Midnight가 충족 여부를 증명합니다.</p>
         <div class="privacy-preview" aria-label="비공개 입력에서 기준 충족 결과까지의 검증 흐름">
           <div class="preview-heading">
             <LockKeyhole :size="16" aria-hidden="true" /> PRIVATE INPUT
@@ -102,39 +110,49 @@ function updateBusinessNumber(event) {
             <span class="preview-label">FLOW</span>
           </div>
         </div>
-        <p class="story-note">가상 기업·가상 기관 데이터로 만드는 실제 Midnight ZK 증명입니다.</p>
+        <p class="story-note">가상 데이터로 체험하는 실제 Midnight ZK 증명</p>
       </section>
       <section class="auth-card" aria-labelledby="auth-title">
         <header class="auth-heading">
           <p class="auth-eyebrow">MIDPROOF</p>
-          <h2 id="auth-title">{{ isSignup ? '회원가입' : '로그인' }}</h2>
+          <h2 id="auth-title">
+            {{ showAccountForm ? (isSignup ? '회원가입' : '로그인') : '바로 체험해 보세요' }}
+          </h2>
           <p class="description">
-            {{ isSignup ? '회사 계정으로 시작하세요.' : '계정 또는 아래 데모 역할을 선택하세요.' }}
+            {{
+              showAccountForm
+                ? isSignup
+                  ? '회사 계정으로 시작하세요.'
+                  : '계정으로 로그인하세요.'
+                : '기업 선택 → 기준 설정 → 결과 확인'
+            }}
           </p>
         </header>
 
         <section
-          v-if="isMidnightDemoEnabled && !isSignup"
+          v-if="isMidnightDemoEnabled && !showAccountForm"
           class="demo-entry"
           aria-label="가상 회사 데모 시작"
         >
-          <strong>데모 시작</strong>
-          <p>역할 선택 → 가상 데이터 동의 → 실제 ZK 결과</p>
-          <div>
-            <button type="button" :disabled="isSubmitting" @click="loginDemo('funder')">
-              검증 요청자
-            </button>
-            <button type="button" :disabled="isSubmitting" @click="loginDemo('seller')">
-              판매기업
-            </button>
-            <button type="button" :disabled="isSubmitting" @click="loginDemo('buyer')">
-              구매기업
-            </button>
-          </div>
-          <small>지갑 설치 없이 체험합니다. 각 방문은 별도 데모 세션으로 보호됩니다.</small>
+          <button type="button" :disabled="isSubmitting" @click="loginDemo">
+            <LoaderCircle
+              v-if="isSubmitting"
+              class="button-spinner"
+              aria-hidden="true"
+              :size="18"
+            />
+            <span>{{ isSubmitting ? '데모 여는 중…' : '데모 시작' }}</span>
+            <ArrowRight v-if="!isSubmitting" aria-hidden="true" :size="18" />
+          </button>
+          <p>회원가입·지갑 설치 없이 시작합니다.</p>
         </section>
 
-        <form :aria-busy="isSubmitting" @submit.prevent="submit">
+        <div v-if="errorMessage" class="error" role="alert">
+          <CircleAlert aria-hidden="true" :size="18" />
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <form v-if="showAccountForm" :aria-busy="isSubmitting" @submit.prevent="submit">
           <label>
             이메일
             <input v-model="email" type="email" autocomplete="email" required />
@@ -173,10 +191,6 @@ function updateBusinessNumber(event) {
               />
             </label>
           </template>
-          <div v-if="errorMessage" class="error" role="alert">
-            <CircleAlert aria-hidden="true" :size="18" />
-            <span>{{ errorMessage }}</span>
-          </div>
           <button type="submit" :disabled="isSubmitting">
             <LoaderCircle
               v-if="isSubmitting"
@@ -190,11 +204,28 @@ function updateBusinessNumber(event) {
           </button>
         </form>
 
-        <button class="text-button" type="button" :disabled="isSubmitting" @click="toggleMode">
+        <button
+          v-if="showAccountForm"
+          class="text-button"
+          type="button"
+          :disabled="isSubmitting"
+          @click="toggleMode"
+        >
           <span>{{ isSignup ? '이미 계정이 있으신가요? 로그인' : '처음이신가요? 회원가입' }}</span>
           <ArrowRight aria-hidden="true" :size="16" />
         </button>
-        <p class="auth-network-note">운영 서버가 가상 재무값을 처리합니다. 은행 검증이 아닙니다.</p>
+        <button
+          v-if="isMidnightDemoEnabled"
+          class="text-button account-switch"
+          type="button"
+          :disabled="isSubmitting"
+          @click="toggleAccountForm"
+        >
+          {{ showAccountForm ? '데모로 돌아가기' : '계정으로 로그인' }}
+        </button>
+        <p class="auth-network-note">
+          가상 기업·기관의 데모이며, 운영 서버가 합성 데이터를 처리합니다.
+        </p>
       </section>
     </div>
   </main>
@@ -202,44 +233,19 @@ function updateBusinessNumber(event) {
 
 <style scoped>
 .demo-entry {
-  margin: 0 0 24px;
-  padding: 18px;
-  border: 1px solid var(--color-brand-border);
-  border-radius: 12px;
-  background: var(--color-brand-soft);
-}
-.demo-entry p,
-.demo-entry small {
-  color: var(--color-text-muted);
-  line-height: 1.5;
+  margin: 24px 0 12px;
 }
 .demo-entry p {
-  margin: 8px 0 14px;
-  font-size: 0.88rem;
-}
-.demo-entry > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  text-align: center;
+  margin: 12px 0 0;
+  font-size: 12px;
 }
 .demo-entry button {
-  padding: 10px 12px;
-  border: 1px solid var(--color-brand-border);
-  border-radius: 8px;
-  color: var(--color-text);
-  background: var(--color-surface);
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.86rem;
-}
-.demo-entry button:hover:not(:disabled) {
-  background: var(--color-surface-subtle);
-  color: var(--color-brand);
-}
-.demo-entry button:disabled {
-  opacity: 0.5;
-  cursor: wait;
+  width: 100%;
+  min-height: 54px;
+  font-size: 16px;
 }
 .auth-page {
   min-height: 100%;
@@ -482,11 +488,16 @@ button:disabled {
   background: var(--color-brand-soft);
 }
 
+.account-switch {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
 .error {
   display: flex;
   align-items: flex-start;
   gap: var(--space-1);
-  margin: 0;
+  margin: 0 0 16px;
   padding: var(--space-2);
   border: 1px solid var(--color-danger-border);
   border-radius: var(--radius-md);

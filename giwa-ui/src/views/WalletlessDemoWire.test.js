@@ -36,6 +36,7 @@ it('handles real Node nested error envelopes through fetch, allowing first conse
         provider: { name: '가상 데모 기관', attestationType: 'mock' },
         walletlessDemo: {
           enabled: true,
+          customCriteriaEnabled: true,
           giwaChainId: '31337',
           receivableFinanceAddress: finance,
           onchainReceivableId: '1',
@@ -85,14 +86,14 @@ it('handles real Node nested error envelopes through fetch, allowing first conse
   await flushPromises()
   expect(wrapper.find('[role=alert]').exists()).toBe(false)
   await wrapper.find('input[type=checkbox]').setValue(true)
-  const start = wrapper.findAll('button').find((item) => item.text().includes('실제 증명 생성'))
+  const start = wrapper.findAll('button').find((item) => item.text().includes('검증 시작'))
   expect(start.attributes('disabled')).toBeUndefined()
   await start.trigger('click')
   await flushPromises()
   expect(fetcher).toHaveBeenCalledTimes(3)
   expect(fetcher.mock.calls[2][0]).toContain('/midnight-proof/v2/demo-runs/start')
   expect(fetcher.mock.calls[2][1].headers.get('Authorization')).toBe('Bearer limited-demo-jwt')
-  expect(wrapper.text()).toContain('가상 기관 확인 중')
+  expect(wrapper.text()).toContain('자료 확인 중')
 })
 
 it.each(finalizedRuns)(
@@ -117,6 +118,7 @@ it.each(finalizedRuns)(
           runtime: { status: 'ready' },
           walletlessDemo: {
             enabled: true,
+            customCriteriaEnabled: true,
             giwaChainId: completed.giwaChainId,
             receivableFinanceAddress: completed.receivableFinanceAddress,
             onchainReceivableId: completed.onchainReceivableId,
@@ -131,16 +133,14 @@ it.each(finalizedRuns)(
     vi.stubGlobal('fetch', fetcher)
     wrapper = mount(WalletlessDemoView, { global: { plugins: [pinia] } })
     await flushPromises()
-    expect(wrapper.text()).toContain('실제 ZK 증명 생성 중')
+    expect(wrapper.text()).toContain('비공개 검증 중')
     await wrapper
       .findAll('button')
-      .find((item) => item.text().includes('기존 요청 상태 확인'))
+      .find((item) => item.text().includes('진행 상태 확인'))
       .trigger('click')
     await flushPromises()
     expect(wrapper.find('[role=alert]').exists()).toBe(false)
-    expect(wrapper.text()).toContain(
-      completed.result.eligible ? '요청한 기준 충족' : '요청한 기준 미충족',
-    )
+    expect(wrapper.text()).toContain(completed.result.eligible ? '기준 충족' : '기준 미충족')
     expect(wrapper.text()).toContain(completed.transactionId)
     expect(wrapper.text()).toContain(completed.blockHeight)
     expect(fetcher).toHaveBeenCalledTimes(3)

@@ -149,7 +149,7 @@ export function createDemoGateway(options: GatewayOptions): Server {
         response.writeHead(204, { 'Access-Control-Allow-Methods': 'GET,POST,PATCH,PUT,DELETE,OPTIONS', 'Access-Control-Allow-Headers': 'Authorization,Content-Type,X-GASOK-MIDNIGHT-UI', 'Access-Control-Max-Age': '600' }); response.end(); return;
       }
       if (route === '/v2/demo/config' && request.method === 'GET') {
-        sendJson(response, 200, { mode: 'hosted-demo', networkId: config.networkId, contractAddress: state.contractAddress ?? null, profiles: DEMO_PROFILES.map(({ id, label, summary }) => ({ id, label, summary })), provider: { name: 'MidProof Demo Attestation', attestationType: 'mock' }, walletlessDemo: { enabled: !!options.demoRuns, ...options.demoFixture }, runtime: { ...state, code: runtimeCode() } }); return;
+        sendJson(response, 200, { mode: 'hosted-demo', networkId: config.networkId, contractAddress: state.contractAddress ?? null, profiles: DEMO_PROFILES.map(({ id, label, summary }) => ({ id, label, summary })), provider: { name: 'MidProof Demo Attestation', attestationType: 'mock' }, walletlessDemo: { enabled: !!options.demoRuns, customCriteriaEnabled: true, ...options.demoFixture }, runtime: { ...state, code: runtimeCode() } }); return;
       }
       const demoRoute = /^\/v2\/demo-runs\/(start|status|recover)$/.exec(route);
       if (demoRoute) {

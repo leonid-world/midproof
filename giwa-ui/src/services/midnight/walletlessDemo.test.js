@@ -52,6 +52,9 @@ describe('walletless demo public result boundary', () => {
     'profileId',
     'clientRequestId',
     'requestId',
+    'minAnnualRevenueKrw',
+    'maxDebtRatioBps',
+    'maxOverdueCount',
   ])('rejects changed %s context', (field) => {
     const fixture = runFixture()
     expect(() =>
@@ -131,4 +134,26 @@ it.each([
   '00' + 'z'.repeat(64),
 ])('rejects malformed transaction metadata %s', (transactionId) => {
   expect(() => parseDemoRun({ ...finalizedRuns[0], transactionId })).toThrow()
+})
+
+it('accepts custom criteria only when they match the submitted policy', () => {
+  const policy = {
+    minAnnualRevenueKrw: '300000000',
+    maxDebtRatioBps: '30000',
+    maxOverdueCount: '3',
+  }
+  const value = runFixture(policy)
+  expect(parseDemoRun(value, { config, expected: policy })).toMatchObject(policy)
+  expect(() => parseDemoRun(value, { expected: { ...policy, maxOverdueCount: '2' } })).toThrow()
+})
+it.each([
+  ['minAnnualRevenueKrw', '18446744073709551616'],
+  ['maxDebtRatioBps', '4294967296'],
+  ['maxOverdueCount', '65536'],
+  ['minAnnualRevenueKrw', '01'],
+  ['maxDebtRatioBps', '100.5'],
+  ['maxOverdueCount', '-1'],
+  ['minAnnualRevenueKrw', '9'.repeat(1000)],
+])('rejects invalid public policy %s=%s', (field, value) => {
+  expect(() => parseDemoRun(runFixture({ [field]: value }))).toThrow()
 })

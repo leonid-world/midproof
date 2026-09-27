@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import type { ProofCapability } from '../api.js';
 import type { ProofBridgeController } from '../proof-bridge/runtime.js';
 import { ProofBridgeHttpError, parseChallengeRequest } from '../proof-bridge/server.js';
-import type { SubjectRole } from '../giwa.js';
+import { UINT16_MAX, UINT32_MAX, UINT64_MAX, type SubjectRole } from '../giwa.js';
 import { DEMO_PROFILES, type DemoNetwork } from './config.js';
 import type { DemoFixture } from './demo-fixture.js';
 
@@ -36,6 +36,18 @@ const unavailable = () => new ProofBridgeHttpError(503, 'MIDNIGHT_DEMO_NOT_READY
 const notFound = () => new ProofBridgeHttpError(404, 'DEMO_RUN_NOT_FOUND', 'No demo run was found for this sign-in session.');
 const busy = () => new ProofBridgeHttpError(409, 'PROOF_SESSION_BUSY', 'Another proof is running. Please wait for its result.');
 const uncertain = { code: 'DEMO_PROOF_OUTCOME_UNCERTAIN', message: 'The submission outcome is not yet known. Recover this run without starting another proof.' };
+const DEFAULT_POLICY = Object.freeze({ minAnnualRevenueKrw: '500000000', maxDebtRatioBps: '20000', maxOverdueCount: '1' });
+const POLICY_FIELDS = ['minAnnualRevenueKrw', 'maxDebtRatioBps', 'maxOverdueCount'] as const;
+const POLICY_LIMITS = { minAnnualRevenueKrw: UINT64_MAX, maxDebtRatioBps: UINT32_MAX, maxOverdueCount: UINT16_MAX };
+const START_FIELDS = ['version', 'clientRequestId', 'consent', 'profileId', 'subjectRole'];
+type DemoPolicy = Record<typeof POLICY_FIELDS[number], string>;
+function validPolicy(value: Partial<Record<typeof POLICY_FIELDS[number], unknown>>): boolean {
+  return POLICY_FIELDS.every((field) => {
+    const criterion = value[field]; const maximum = POLICY_LIMITS[field];
+    return typeof criterion === 'string' && criterion.length <= maximum.toString().length
+      && /^(0|[1-9][0-9]*)$/.test(criterion) && BigInt(criterion) <= maximum;
+  });
+}
 export function validateDemoActor(value: unknown, now = Date.now()): DemoActor {
   const actor = value as DemoActor;
   if (!actor || actor.demo !== true || !/^[1-9][0-9]*$/.test(actor.actorId) || actor.actorId !== actor.userId
@@ -65,7 +77,7 @@ export class DemoRuns {
     for (const run of options.records ?? []) {
       if (!RUN_ID.test(run.runId) || run.requestId !== run.runId || !DEMO_UUID.test(run.clientRequestId)
           || !DEMO_UUID.test(run.ownerSessionId) || !/^[1-9][0-9]*$/.test(run.actorId)
-          || !/^[0-9]+$/.test(run.validUntil) || run.networkId !== options.fixture.networkId
+          || !/^[0-9]+$/.test(run.validUntil) || !validPolicy(run) || run.networkId !== options.fixture.networkId
           || run.giwaChainId !== options.fixture.giwaChainId || run.receivableFinanceAddress !== options.fixture.receivableFinanceAddress
           || run.onchainReceivableId !== options.fixture.onchainReceivableId
           || run.intendedFunderWallet !== options.fixture.intendedFunderWallet
@@ -96,13 +108,24 @@ export class DemoRuns {
   async #start(actor: DemoActor, input: unknown) {
     validateDemoActor(actor, this.#now());
     const body = input as Record<string, unknown>;
-    if (!body || Object.keys(body).sort().join() !== ['version','clientRequestId','consent','profileId','subjectRole'].sort().join()
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw invalid();
+    // Legacy clients may omit the entire policy; a partial policy is never defaulted.
+    const hasPolicy = POLICY_FIELDS.some((field) => Object.hasOwn(body, field));
+    const expectedFields = hasPolicy ? [...START_FIELDS, ...POLICY_FIELDS] : START_FIELDS;
+    if (Object.keys(body).sort().join() !== [...expectedFields].sort().join()
         || body.version !== 2 || body.consent !== true || typeof body.clientRequestId !== 'string' || !DEMO_UUID.test(body.clientRequestId)
-        || !DEMO_PROFILES.some((p) => p.id === body.profileId) || !['SELLER','BUYER'].includes(body.subjectRole as string)) throw invalid();
+        || !DEMO_PROFILES.some((p) => p.id === body.profileId) || !['SELLER','BUYER'].includes(body.subjectRole as string)
+        || (hasPolicy && !validPolicy(body))) throw invalid();
+    const policy: DemoPolicy = hasPolicy ? {
+      minAnnualRevenueKrw: body.minAnnualRevenueKrw as string,
+      maxDebtRatioBps: body.maxDebtRatioBps as string,
+      maxOverdueCount: body.maxOverdueCount as string,
+    } : DEFAULT_POLICY;
     const previous = [...this.#records.values()].find((run) => run.actorId === actor.actorId
       && run.ownerSessionId === actor.sessionId && run.clientRequestId === body.clientRequestId);
     if (previous) {
-      if (previous.profileId !== body.profileId || previous.subjectRole !== body.subjectRole) throw new ProofBridgeHttpError(409, 'DEMO_IDEMPOTENCY_CONFLICT', 'This start identifier already belongs to another scenario.');
+      if (previous.profileId !== body.profileId || previous.subjectRole !== body.subjectRole
+          || POLICY_FIELDS.some((field) => previous[field] !== policy[field])) throw new ProofBridgeHttpError(409, 'DEMO_IDEMPOTENCY_CONFLICT', 'This start identifier already belongs to another scenario or policy.');
       return this.status(actor, previous.runId);
     }
     const address = this.#options.contractAddress();
@@ -127,7 +150,7 @@ export class DemoRuns {
       status: 'preparing', networkId: f.networkId, midnightContractAddress: address, giwaChainId: f.giwaChainId,
       receivableFinanceAddress: f.receivableFinanceAddress, onchainReceivableId: f.onchainReceivableId,
       partyWallet: f.wallets[body.subjectRole as SubjectRole], intendedFunderWallet: f.intendedFunderWallet,
-      minAnnualRevenueKrw: '500000000', maxDebtRatioBps: '20000', maxOverdueCount: '1', validUntil: String(Math.min(now + 3600, actor.expiresAt)) };
+      ...policy, validUntil: String(Math.min(now + 3600, actor.expiresAt)) };
     this.#records.set(runId, run);
     try { await this.#save(); } catch { this.#records.delete(runId); throw unavailable(); }
     const job = this.#launch(run).finally(() => this.#launching.delete(runId));

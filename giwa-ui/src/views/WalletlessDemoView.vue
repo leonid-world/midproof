@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import {
   ShieldCheck,
   LockKeyhole,
@@ -12,6 +12,13 @@ import { useAuthStore } from '../stores/auth'
 import { captureAuthSession } from '../services/authSession'
 import { demoRunRequest, loadWalletlessConfig } from '../services/midnight/walletlessDemo'
 
+import {
+  DEMO_POLICY_PRESETS,
+  demoPolicyFromInputs,
+  demoPolicyToInputs,
+  demoPolicySummary,
+} from '../services/midnight/demoPolicy'
+
 const auth = useAuthStore()
 const session = captureAuthSession()
 const config = ref(null)
@@ -19,6 +26,26 @@ const run = ref(null)
 const role = ref(auth.user?.email?.startsWith('buyer@') ? 'BUYER' : 'SELLER')
 const profileId = ref('steady')
 const consent = ref(false)
+const policyInputs = reactive({ ...DEMO_POLICY_PRESETS[1] })
+const resultPanel = ref(null)
+const revenueInput = ref(null)
+const policy = computed(() => {
+  try {
+    return { value: demoPolicyFromInputs(policyInputs), error: '' }
+  } catch (cause) {
+    return { value: null, error: cause.message }
+  }
+})
+const displayedPolicy = computed(() => run.value ?? attempted.value ?? policy.value.value)
+const policySummary = computed(() =>
+  displayedPolicy.value ? demoPolicySummary(displayedPolicy.value) : '',
+)
+function presetSelected(preset) {
+  return ['revenue', 'debt', 'overdue'].every((key) => policyInputs[key] === preset[key])
+}
+function selectPreset(preset) {
+  Object.assign(policyInputs, preset)
+}
 const busy = ref(false)
 const initializing = ref(true)
 const recoveryChecked = ref(false)
@@ -36,12 +63,16 @@ const active = computed(
 )
 const expired = computed(() => run.value && Number(run.value.validUntil) * 1000 <= now.value)
 const ready = computed(
-  () => config.value?.walletlessDemo?.enabled && config.value?.runtime?.status === 'ready',
+  () =>
+    config.value?.walletlessDemo?.enabled &&
+    config.value?.walletlessDemo?.customCriteriaEnabled === true &&
+    config.value?.runtime?.status === 'ready',
 )
 const canStart = computed(
   () =>
     ready.value &&
     profiles.value.some((profile) => profile.id === profileId.value) &&
+    policy.value.value &&
     consent.value &&
     !busy.value &&
     !initializing.value &&
@@ -56,18 +87,27 @@ const stateText = computed(() => {
   if (expired.value || run.value?.status === 'expired') return '유효기간 만료'
   return (
     {
-      preparing: '가상 기관 확인 중',
-      proving: '실제 ZK 증명 생성 중',
-      submitted: '체인 제출 완료 · 공개 결과 확인 중',
-      completed: '공개 결과 검증 완료',
+      preparing: '자료 확인 중',
+      proving: '비공개 검증 중',
+      submitted: '결과 확인 중',
+      completed: '검증 완료',
       failed: '증명 처리 실패',
-      uncertain: '기존 제출 상태 확인 필요',
+      uncertain: '진행 상태 확인 필요',
     }[run.value?.status] ?? '증명 준비'
   )
 })
-watch([role, profileId], () => {
-  consent.value = false
-})
+watch(
+  [
+    role,
+    profileId,
+    () => policyInputs.revenue,
+    () => policyInputs.debt,
+    () => policyInputs.overdue,
+  ],
+  () => {
+    consent.value = false
+  },
+)
 
 function schedulePoll() {
   clearTimeout(timer)
@@ -83,10 +123,14 @@ function accept(value) {
   recoveryChecked.value = true
   role.value = value.subjectRole
   profileId.value = value.profileId
+  Object.assign(policyInputs, demoPolicyToInputs(value))
   attempted.value = {
     clientRequestId: value.clientRequestId,
     profileId: value.profileId,
     subjectRole: value.subjectRole,
+    minAnnualRevenueKrw: value.minAnnualRevenueKrw,
+    maxDebtRatioBps: value.maxDebtRatioBps,
+    maxOverdueCount: value.maxOverdueCount,
   }
   canRetrySame.value = false
   schedulePoll()
@@ -118,13 +162,16 @@ async function initialize() {
 }
 async function start() {
   if ((!canStart.value && !canRetrySame.value) || busy.value) return
+  busy.value = true
   const attempt = attempted.value ?? {
     clientRequestId: crypto.randomUUID(),
     profileId: profileId.value,
     subjectRole: role.value,
+    ...policy.value.value,
   }
   attempted.value = attempt
-  busy.value = true
+  await nextTick()
+  resultPanel.value?.focus({ preventScroll: false })
   canRetrySame.value = false
   error.value = ''
   try {
@@ -167,7 +214,7 @@ async function refreshRun() {
     if (mounted) busy.value = false
   }
 }
-function newExample() {
+async function newExample() {
   if (active.value || busy.value) return
   clearTimeout(timer)
   run.value = null
@@ -175,6 +222,8 @@ function newExample() {
   consent.value = false
   error.value = ''
   canRetrySame.value = false
+  await nextTick()
+  revenueInput.value?.focus()
 }
 function time(value) {
   return new Date(Number(value) * 1000).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
@@ -196,185 +245,224 @@ onUnmounted(() => {
 <template>
   <main class="demo-page">
     <header class="demo-heading">
-      <p class="eyebrow">MIDPROOF · INTERACTIVE DEMO</p>
-      <h1>재무정보를 공개하지 않고,<br />기준 충족을 증명하세요.</h1>
-      <p>
-        미리 준비된 가상 기업 시나리오를 선택하고, 실제 Midnight ZK 증명과 체인에 기록된 결과를
-        확인하세요.
-      </p>
-      <span class="network-badge">{{
-        config?.networkId === 'undeployed'
-          ? '로컬 Midnight 네트워크'
-          : config?.networkId === 'preview'
-            ? 'Midnight Preview'
-            : '네트워크 확인 중'
-      }}</span>
+      <h1>숫자는 비공개. 결과만 확인.</h1>
+      <p>기업을 고르고, 원하는 기준으로 검증해 보세요.</p>
     </header>
 
     <div class="demo-grid">
-      <section class="demo-panel" aria-labelledby="demo-select-title">
-        <p class="step">01 · 가상 사례 선택</p>
-        <h2 id="demo-select-title">어떤 기업을 검증할까요?</h2>
+      <section class="demo-panel" aria-label="검증 설정">
         <fieldset :disabled="Boolean(attempted) || initializing || busy">
-          <legend>기업의 역할</legend>
-          <div class="role-options">
-            <label><input v-model="role" type="radio" value="SELLER" /> 판매기업 · Seller</label>
-            <label><input v-model="role" type="radio" value="BUYER" /> 구매기업 · Buyer</label>
-          </div>
-          <legend>가상 재무 시나리오</legend>
-          <label
-            v-for="profile in profiles"
-            :key="profile.id"
-            class="profile-option"
-            :class="{ selected: profileId === profile.id }"
-          >
-            <input v-model="profileId" type="radio" :value="profile.id" />
-            <span
-              ><strong>{{ profile.label }}</strong
-              ><small>{{ profile.summary }}</small></span
+          <legend class="section-title"><span class="step">1</span> 기업 선택</legend>
+          <div class="profile-options">
+            <label
+              v-for="profile in profiles"
+              :key="profile.id"
+              class="profile-option"
+              :class="{ selected: profileId === profile.id }"
             >
-          </label>
+              <input v-model="profileId" name="company" type="radio" :value="profile.id" />
+              <strong>{{ profile.label }}</strong>
+            </label>
+          </div>
+          <div class="role-options" role="group" aria-label="기업 역할">
+            <label><input v-model="role" name="role" type="radio" value="SELLER" /> 판매기업</label>
+            <label><input v-model="role" name="role" type="radio" value="BUYER" /> 구매기업</label>
+          </div>
         </fieldset>
-        <div class="criteria">
-          <h3>공개 검증 기준</h3>
-          <dl>
-            <div>
-              <dt>연 매출</dt>
-              <dd>5억 원 이상</dd>
+
+        <fieldset class="criteria" :disabled="Boolean(attempted) || initializing || busy">
+          <legend class="section-title"><span class="step">2</span> 검증 기준 설정</legend>
+          <div class="presets" role="group" aria-label="기준 빠른 선택">
+            <button
+              v-for="preset in DEMO_POLICY_PRESETS"
+              :key="preset.label"
+              type="button"
+              :aria-pressed="presetSelected(preset)"
+              @click="selectPreset(preset)"
+            >
+              {{ preset.label }}
+            </button>
+          </div>
+          <div class="criteria-fields">
+            <label for="revenue">최소 연매출</label>
+            <div class="input-unit">
+              <input
+                id="revenue"
+                ref="revenueInput"
+                v-model="policyInputs.revenue"
+                inputmode="decimal"
+                maxlength="30"
+                :aria-invalid="!!policy.error"
+                aria-describedby="criteria-help"
+              /><span>억 원 이상</span>
             </div>
-            <div>
-              <dt>부채비율</dt>
-              <dd>200% 이하</dd>
+            <label for="debt">최대 부채비율</label>
+            <div class="input-unit">
+              <input
+                id="debt"
+                v-model="policyInputs.debt"
+                inputmode="decimal"
+                maxlength="20"
+                :aria-invalid="!!policy.error"
+                aria-describedby="criteria-help"
+              /><span>% 이하</span>
             </div>
-            <div>
-              <dt>연체 횟수</dt>
-              <dd>1회 이하</dd>
+            <label for="overdue">최대 연체 횟수</label>
+            <div class="input-unit">
+              <input
+                id="overdue"
+                v-model="policyInputs.overdue"
+                inputmode="numeric"
+                maxlength="5"
+                :aria-invalid="!!policy.error"
+                aria-describedby="criteria-help"
+              /><span>회 이하</span>
             </div>
-          </dl>
-          <p>세 기준을 모두 충족하는지만 공개됩니다.</p>
-        </div>
-        <label class="consent">
-          <input
-            v-model="consent"
-            type="checkbox"
-            :disabled="Boolean(attempted) || busy || initializing"
-          />
-          <span
-            >선택한 가상 기업 시나리오와 공개 기준을 확인했으며, 운영 서버가 합성 재무값으로
-            Midnight 증명을 생성·제출하는 데 동의합니다.</span
-          >
-        </label>
-        <button
-          v-if="!attempted"
-          class="primary"
-          type="button"
-          :disabled="!canStart"
-          @click="start"
-        >
-          <ShieldCheck :size="19" />동의하고 실제 증명 생성<ArrowRight :size="17" />
-        </button>
-        <button
-          v-else-if="canRetrySame"
-          class="primary"
-          type="button"
-          :disabled="busy"
-          @click="start"
-        >
-          같은 요청으로 다시 접수
-        </button>
-        <p v-if="initializing" class="hint">데모 설정과 이전 요청을 확인하고 있습니다.</p>
+          </div>
+          <p id="criteria-help" class="hint" :class="{ invalid: policy.error }">
+            {{ policy.error || '세 기준을 모두 충족하는지 확인합니다.' }}
+          </p>
+        </fieldset>
+
+        <template v-if="!attempted">
+          <label class="consent">
+            <input v-model="consent" type="checkbox" :disabled="busy || initializing" />
+            <span>가상 재무자료를 서버에서 처리해 검증하는 데 동의합니다.</span>
+          </label>
+          <button class="primary" type="button" :disabled="!canStart" @click="start">
+            <ShieldCheck :size="19" />검증 시작<ArrowRight :size="17" />
+          </button>
+        </template>
+        <p v-if="initializing" class="hint">데모 준비 중…</p>
         <p v-else-if="!ready && !attempted" class="hint">
-          {{
-            config?.walletlessDemo?.enabled
-              ? '증명 서버를 준비하고 있습니다.'
-              : '이 실행 환경의 데모를 준비하고 있습니다.'
-          }}
+          데모를 준비하고 있습니다.
           <button type="button" class="text-action" @click="initialize">다시 확인</button>
+        </p>
+        <p v-else-if="attempted" class="hint">
+          {{
+            active
+              ? '검증 중에는 선택한 기준을 유지합니다.'
+              : '다른 기준으로 다시 검증할 수 있습니다.'
+          }}
         </p>
       </section>
 
       <section
+        ref="resultPanel"
         class="demo-panel result-panel"
+        tabindex="-1"
         aria-labelledby="demo-result-title"
         aria-live="polite"
       >
-        <p class="step">02 · 증명과 검증</p>
-        <h2 id="demo-result-title">{{ attempted ? stateText : '원문 대신, 확인된 결과' }}</h2>
+        <h2 id="demo-result-title" class="section-title"><span class="step">3</span> 검증 결과</h2>
         <div v-if="!attempted" class="result-empty">
-          <LockKeyhole :size="44" />
-          <p>동의 후 가상 기관 확인 → ZK 증명 생성 → 체인 검증이 진행됩니다.</p>
-          <small>지갑 확장 프로그램이나 사용자 서명이 필요하지 않습니다.</small>
+          <div class="privacy-icon"><LockKeyhole :size="34" /></div>
+          <h3>이 기업은 기준을 충족할까요?</h3>
+          <p>재무 원문 없이, 충족 여부만 보여드립니다.</p>
         </div>
-        <div v-else>
+        <template v-else>
           <div
             v-if="run?.status === 'completed' && !expired"
             class="verified-result"
             :class="{ unmet: !run.result.eligible }"
           >
-            <CircleCheck :size="34" /><strong>{{
-              run.result.eligible ? '요청한 기준 충족' : '요청한 기준 미충족'
-            }}</strong>
-            <p>Midnight 공개 상태를 독립 조회해 확인했습니다.</p>
+            <CircleCheck v-if="run.result.eligible" :size="44" /><CircleAlert v-else :size="44" />
+            <h3>{{ run.result.eligible ? '기준 충족' : '기준 미충족' }}</h3>
+            <p>
+              {{
+                run.result.eligible
+                  ? '선택한 세 기준을 모두 충족합니다.'
+                  : '선택한 기준 중 충족하지 못한 항목이 있습니다.'
+              }}
+            </p>
+            <span class="verified-badge"><ShieldCheck :size="14" />Midnight 검증 완료</span>
           </div>
           <div v-else class="progress-result">
             <LoaderCircle
-              v-if="['preparing', 'proving', 'submitted'].includes(run?.status)"
+              v-if="active && !error && !expired && run?.status !== 'uncertain'"
               class="spinner"
-              :size="30"
-            /><CircleAlert v-else :size="30" />
+              :size="36"
+            />
+            <CircleAlert v-else :size="36" />
+            <h3>{{ stateText }}</h3>
             <p>
               {{
                 run?.status === 'failed'
-                  ? '증명을 완료하지 못했습니다. 기준 미충족 결과와 다릅니다.'
-                  : expired
-                    ? '유효기간이 지나 현재 기준 충족 결과로 사용할 수 없습니다.'
-                    : '증명은 수 분 걸릴 수 있습니다. 이 요청의 상태만 다시 확인합니다.'
+                  ? '검증을 완료하지 못했습니다. 다시 시도해 주세요.'
+                  : expired || run?.status === 'expired'
+                    ? '이 결과의 유효기간이 지났습니다.'
+                    : run?.status === 'uncertain' || error
+                      ? '아래 버튼으로 진행 상태를 확인해 주세요.'
+                      : '잠시만 기다려 주세요. 보통 수 분 걸립니다.'
               }}
             </p>
           </div>
-          <dl v-if="run" class="context">
-            <div>
-              <dt>가상 기업</dt>
-              <dd>{{ selectedProfile?.label ?? run.profileId }}</dd>
-            </div>
-            <div>
-              <dt>시나리오 역할</dt>
-              <dd>{{ run.subjectRole === 'SELLER' ? '판매기업 · Seller' : '구매기업 · Buyer' }}</dd>
-            </div>
-            <div>
-              <dt>기준</dt>
-              <dd>매출 ≥ 5억 원 · 부채비율 ≤ 200% · 연체 ≤ 1회</dd>
-            </div>
-            <div>
-              <dt>유효기간 (한국)</dt>
-              <dd>{{ time(run.validUntil) }}</dd>
-            </div>
-            <div>
-              <dt>가상 기관</dt>
-              <dd>{{ config?.provider?.name ?? '가상 Attestation 기관' }} · Provider 2</dd>
-            </div>
-            <div v-if="run.result">
-              <dt>가상 자료 기준 시각</dt>
-              <dd>{{ time(run.result.profileAsOf) }}</dd>
-            </div>
-          </dl>
+          <div class="result-context" v-if="displayedPolicy">
+            <strong
+              >{{ selectedProfile?.label ?? profileId }} ·
+              {{ role === 'SELLER' ? '판매기업' : '구매기업' }}</strong
+            >
+            <p>{{ policySummary }}</p>
+            <span><LockKeyhole :size="14" />재무 원문 비공개</span>
+          </div>
+          <div class="result-actions">
+            <button
+              v-if="canRetrySame"
+              type="button"
+              class="primary"
+              :disabled="busy"
+              @click="start"
+            >
+              같은 요청으로 다시 시도
+            </button>
+            <button
+              v-else-if="!active"
+              type="button"
+              class="primary"
+              :disabled="busy"
+              @click="newExample"
+            >
+              기준 바꿔 다시 검증<ArrowRight :size="17" />
+            </button>
+            <button
+              v-if="active"
+              type="button"
+              class="secondary"
+              :disabled="busy"
+              @click="refreshRun"
+            >
+              {{ busy ? '확인 중…' : '진행 상태 확인' }}
+            </button>
+          </div>
           <details v-if="run" class="evidence">
-            <summary>Midnight 체인 기록과 요청</summary>
-            <dl class="context">
+            <summary>검증 상세 보기</summary>
+            <dl>
+              <div>
+                <dt>유효기간</dt>
+                <dd>{{ time(run.validUntil) }}</dd>
+              </div>
+              <div>
+                <dt>가상 확인기관</dt>
+                <dd>{{ config?.provider?.name ?? '가상 데모 기관' }}</dd>
+              </div>
+              <div v-if="run.result">
+                <dt>자료 기준 시각</dt>
+                <dd>{{ time(run.result.profileAsOf) }}</dd>
+              </div>
+              <div>
+                <dt>네트워크</dt>
+                <dd>{{ run.networkId === 'preview' ? 'Midnight Preview' : '로컬 Midnight' }}</dd>
+              </div>
               <div>
                 <dt>요청</dt>
                 <dd>{{ run.requestId }}</dd>
               </div>
               <div>
-                <dt>Midnight 네트워크</dt>
-                <dd>{{ run.networkId }}</dd>
-              </div>
-              <div>
-                <dt>Midnight 계약</dt>
+                <dt>계약</dt>
                 <dd>{{ run.midnightContractAddress }}</dd>
               </div>
               <div v-if="run.transactionId">
-                <dt>실제 Midnight 트랜잭션</dt>
+                <dt>트랜잭션</dt>
                 <dd>{{ run.transactionId }}</dd>
               </div>
               <div v-if="run.blockHeight">
@@ -382,109 +470,124 @@ onUnmounted(() => {
                 <dd>{{ run.blockHeight }}</dd>
               </div>
             </dl>
-          </details>
-          <div class="result-actions">
-            <button type="button" class="secondary" :disabled="busy" @click="refreshRun">
-              {{ busy ? '확인 중…' : '기존 요청 상태 확인' }}</button
-            ><button
+            <button
               v-if="!active"
               type="button"
-              class="secondary"
+              class="text-action"
               :disabled="busy"
-              @click="newExample"
+              @click="refreshRun"
             >
-              다른 사례 체험
+              결과 다시 확인
             </button>
-          </div>
-        </div>
+          </details>
+        </template>
         <div v-if="error" class="demo-error" role="alert">
-          {{ error
-          }}<button v-if="!attempted" class="text-action" type="button" @click="initialize">
+          {{ error }}
+          <button v-if="!attempted" class="text-action" type="button" @click="initialize">
             다시 확인
           </button>
         </div>
       </section>
     </div>
-    <aside class="demo-disclosure">
-      <LockKeyhole :size="20" />
-      <p>
-        모든 기업과 재무자료, 확인 기관은 가상입니다. 운영 서버와 증명 서버는 합성 재무값을 처리하고
-        Midnight 네트워크에 증명을 제출합니다. 결과는 은행 검증, 실제 기업의 신용평가 또는 펀딩
-        승인이 아닙니다. 재무 원문·서명·비밀값은 공개 결과에 포함되지 않습니다.
-      </p>
-    </aside>
+    <footer class="demo-disclosure">
+      <span>가상 데이터 · 실제 Midnight 증명</span>
+      <details>
+        <summary>데모 안내</summary>
+        <p>
+          기업·재무자료·확인기관은 가상입니다. 운영 서버와 증명 서버가 합성 재무값을 처리합니다.
+          상대방의 결과 화면과 공개 원장에는 재무 원문을 전달하지 않습니다. 결과는 선택한 기준의
+          충족 여부이며, 실제 신용평가나 금융 승인이 아닙니다.
+        </p>
+      </details>
+    </footer>
   </main>
 </template>
 
 <style scoped>
 .demo-page {
-  max-width: 1120px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 48px 24px 64px;
+  padding: 16px 24px 36px;
 }
 .demo-heading {
-  margin-bottom: 32px;
-}
-.eyebrow,
-.step {
-  color: var(--color-brand);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  margin-bottom: 16px;
 }
 .demo-heading h1 {
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1.35;
-  letter-spacing: -0.04em;
-  margin: 16px 0;
+  font-size: clamp(26px, 4vw, 34px);
+  line-height: 1.3;
+  letter-spacing: -0.045em;
+  margin: 8px 0;
 }
-.demo-heading > p:not(.eyebrow) {
+.demo-heading p {
   color: var(--color-text-muted);
-  line-height: 1.7;
-}
-.network-badge {
-  display: inline-block;
-  color: var(--color-brand);
-  background: var(--color-brand-soft);
-  border: 1px solid var(--color-brand-border);
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 12px;
+  font-size: 15px;
+  margin: 0;
 }
 .demo-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 20px;
+  align-items: start;
 }
 .demo-panel {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 18px;
-  padding: 28px;
+  padding: 22px;
   min-width: 0;
-}
-.demo-panel h2 {
-  font-size: 21px;
-  margin: 12px 0 26px;
-  letter-spacing: -0.025em;
 }
 fieldset {
   border: 0;
   padding: 0;
   margin: 0;
   min-width: 0;
+  width: 100%;
 }
-legend {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  margin-bottom: 10px;
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 650;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  font-size: 12px;
+}
+.profile-options {
+  display: flex;
+  gap: 10px;
+}
+.profile-option {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.profile-option.selected {
+  border-color: var(--color-brand);
+  background: var(--color-brand-soft);
 }
 .role-options {
   display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-bottom: 24px;
-  font-size: 14px;
+  gap: 22px;
+  margin: 12px 0 14px;
+  font-size: 13px;
+  color: var(--color-text-muted);
 }
 .role-options label {
   display: flex;
@@ -494,72 +597,84 @@ legend {
 input {
   accent-color: var(--color-brand);
 }
-.profile-option {
+.presets {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.presets button {
+  flex: 1;
+  min-height: 40px;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 10px;
-  cursor: pointer;
-}
-.profile-option.selected {
-  border-color: var(--color-brand);
-  background: var(--color-brand-soft);
-}
-.profile-option strong {
-  font-size: 14px;
-}
-.profile-option small {
-  display: block;
-  color: var(--color-text-muted);
-  line-height: 1.6;
-  margin-top: 6px;
-}
-.criteria {
-  margin: 24px 0;
-  padding: 20px;
+  border-radius: 7px;
   background: var(--color-canvas);
-  border-radius: 10px;
-}
-.criteria h3 {
-  font-size: 14px;
-  margin: 0 0 14px;
-}
-dl {
-  margin: 0;
-}
-dl > div {
-  display: flex;
-  gap: 16px;
-  justify-content: space-between;
-  margin: 10px 0;
+  color: var(--color-text-muted);
+  padding: 8px;
   font-size: 13px;
 }
-dt {
+.presets button[aria-pressed='true'] {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+  font-weight: 650;
+}
+.criteria-fields {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 1.25fr);
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.input-unit {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  background: var(--color-canvas);
+  border-radius: 8px;
+  padding-right: 12px;
+  overflow: hidden;
+}
+.input-unit:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.input-unit input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 11px;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 650;
+  outline: none;
+}
+.input-unit span {
+  white-space: nowrap;
+  font-size: 12px;
   color: var(--color-text-muted);
 }
-dd {
-  margin: 0;
-  text-align: right;
-}
-.criteria p {
+.hint {
   color: var(--color-text-muted);
   font-size: 12px;
-  margin: 16px 0 0;
+  line-height: 1.6;
+  margin: 12px 0 0;
+}
+.hint.invalid {
+  color: var(--color-danger);
 }
 .consent {
   display: flex;
-  gap: 10px;
-  font-size: 13px;
+  gap: 9px;
+  font-size: 12px;
   line-height: 1.7;
-  margin: 24px 0;
+  margin: 16px 0 12px;
+  color: var(--color-text-muted);
 }
 .consent input {
   flex-shrink: 0;
-  margin-top: 5px;
   align-self: flex-start;
+  margin-top: 4px;
 }
 button {
   font: inherit;
@@ -570,14 +685,15 @@ button:disabled {
   cursor: not-allowed;
 }
 button:focus-visible,
-input:focus-visible,
+input[type='radio']:focus-visible,
+input[type='checkbox']:focus-visible,
 summary:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 3px;
 }
 .primary {
   width: 100%;
-  padding: 14px;
+  padding: 13px;
   border: 0;
   border-radius: 10px;
   background: var(--color-action);
@@ -587,12 +703,16 @@ summary:focus-visible {
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 650;
 }
-.hint {
-  color: var(--color-text-muted);
+.secondary {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  padding: 11px 14px;
+  border-radius: 8px;
+  color: var(--color-text);
+  background: var(--color-surface);
   font-size: 13px;
-  line-height: 1.7;
 }
 .text-action {
   border: 0;
@@ -600,99 +720,125 @@ summary:focus-visible {
   color: var(--color-brand);
   padding: 4px;
   text-decoration: underline;
-  font-size: 13px;
+  font-size: 12px;
 }
-.result-empty {
-  min-height: 300px;
+.result-panel {
+  min-height: 420px;
+}
+.result-panel:focus {
+  outline: none;
+}
+.result-empty,
+.verified-result,
+.progress-result {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  padding: 34px 4px;
+}
+.result-empty {
+  min-height: 290px;
   color: var(--color-text-muted);
-  gap: 16px;
-  line-height: 1.8;
 }
-.result-empty svg {
+.privacy-icon {
+  padding: 20px;
+  border-radius: 50%;
+  background: var(--color-brand-soft);
   color: var(--color-brand);
+  margin-bottom: 8px;
 }
-.result-empty p {
-  max-width: 280px;
-  margin: 0;
+.result-empty h3 {
+  font-size: 17px;
+  color: var(--color-text);
+  margin-bottom: 0;
 }
-.result-empty small {
-  font-size: 12px;
+.result-empty p,
+.verified-result p,
+.progress-result p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-text-muted);
 }
 .verified-result {
-  padding: 22px 18px;
-  text-align: center;
-  background: var(--color-brand-soft);
-  border-radius: 12px;
   color: var(--color-brand);
-}
-.verified-result strong {
-  display: block;
-  font-size: 25px;
-  margin-top: 10px;
-}
-.verified-result p {
-  font-size: 12px;
-  margin-bottom: 0;
-  color: var(--color-text-muted);
 }
 .verified-result.unmet {
   color: var(--color-warning);
-  background: var(--color-warning-soft);
+}
+.verified-result h3 {
+  font-size: 32px;
+  margin: 16px 0 0;
+  letter-spacing: -0.04em;
+}
+.verified-badge {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: 11px;
 }
 .progress-result {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  line-height: 1.7;
-  font-size: 14px;
-  color: var(--color-text-muted);
-  padding: 12px 0;
-}
-.progress-result svg {
-  flex-shrink: 0;
   color: var(--color-brand);
+  min-height: 180px;
 }
-.context {
-  margin-top: 24px;
+.progress-result h3 {
+  font-size: 21px;
+  margin: 20px 0 0;
+  color: var(--color-text);
 }
-.context > div {
-  flex-direction: column;
-  gap: 7px;
-  margin: 16px 0;
-}
-.context dd {
-  text-align: left;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-.evidence {
-  border-top: 1px solid var(--color-border);
-  margin-top: 24px;
-  padding-top: 18px;
-}
-.evidence summary {
-  cursor: pointer;
+.result-context {
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--color-canvas);
   font-size: 13px;
+}
+.result-context p {
+  line-height: 1.8;
   color: var(--color-text-muted);
+  margin: 8px 0;
+}
+.result-context span {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  color: var(--color-brand);
+  font-size: 11px;
 }
 .result-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 24px;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
 }
-.secondary {
-  border: 1px solid var(--color-border);
-  padding: 11px 14px;
-  border-radius: 8px;
-  color: var(--color-text);
-  background: var(--color-surface);
-  font-size: 13px;
+.evidence {
+  border-top: 1px solid var(--color-border);
+  margin-top: 20px;
+  padding-top: 16px;
+}
+summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+dl {
+  margin: 20px 0 0;
+}
+dl > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 12px 0;
+  font-size: 12px;
+}
+dt {
+  color: var(--color-text-muted);
+}
+dd {
+  margin: 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 .demo-error {
   margin-top: 20px;
@@ -704,16 +850,24 @@ summary:focus-visible {
   line-height: 1.7;
 }
 .demo-disclosure {
-  margin-top: 24px;
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  margin-top: 20px;
   color: var(--color-text-muted);
-  font-size: 12px;
-  line-height: 1.9;
+  font-size: 11px;
+  line-height: 1.8;
 }
-.demo-disclosure svg {
+.demo-disclosure > span {
   flex-shrink: 0;
-  margin-top: 12px;
+}
+.demo-disclosure details {
+  max-width: 560px;
+  text-align: right;
+}
+.demo-disclosure p {
+  text-align: left;
 }
 .spinner {
   animation: spin 1.5s linear infinite;
@@ -723,15 +877,21 @@ summary:focus-visible {
     transform: rotate(360deg);
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 760px) {
   .demo-grid {
     grid-template-columns: 1fr;
   }
   .demo-page {
-    padding: 32px 16px;
+    padding: 26px 16px;
   }
   .demo-panel {
     padding: 22px;
+  }
+  .result-panel {
+    min-height: 0;
+  }
+  .result-empty {
+    min-height: 150px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

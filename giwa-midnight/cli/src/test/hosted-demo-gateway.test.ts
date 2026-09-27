@@ -28,6 +28,15 @@ async function setup(readHealthy = () => true) {
   return { origin, post, state, controller, config, owners, authorize, saveOwners };
 }
 describe('hosted synthetic proof gateway', () => {
+  it('advertises custom-criteria protocol support independently of runtime readiness and demo activation', async () => {
+    const x = await setup();
+    for (const status of ['starting', 'ready'] as const) {
+      x.state.status = status;
+      const config = await fetch(x.origin + '/v2/demo/config').then((response) => response.json());
+      expect(config).toMatchObject({ walletlessDemo: { enabled: false, customCriteriaEnabled: true }, runtime: { status } });
+    }
+    expect(x.controller.startProof).not.toHaveBeenCalled();
+  });
   it('reports degraded result readiness without blocking recovery or restarting the wallet', async () => {
     let healthy = false;
     const x = await setup(() => healthy);
