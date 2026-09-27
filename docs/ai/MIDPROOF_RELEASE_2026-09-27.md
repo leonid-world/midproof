@@ -1,6 +1,6 @@
 # MidProof submission release — 2026-09-27
 
-Status: **Midnight-only correction in progress**. The prior EVM-backed demo
+Status: **Midnight-only source, fresh-clone execution, public proofs and restart recovery complete**. The prior EVM-backed demo
 passed local acceptance but did not satisfy the owner's intended absence of
 operator GIWA preparation. ADR-025 supersedes that dependency.
 
@@ -11,8 +11,8 @@ or actual receivable to prepare the Midnight review. The faucet/CAPTCHA request
 is withdrawn; no token claim or fixture transaction occurred. The new default
 uses fixed fictional scenario context, automatically encrypted internal demo
 authentication, actual Compact proofs and existing Midnight chain verification.
-The local startup excludes EVM and receivable preparation. New source, local
-and public acceptance evidence will be recorded below.
+The local startup excludes EVM and receivable preparation. Current corrected source, local/fresh-clone and public proof acceptance is in
+[MIDNIGHT_ONLY_VALIDATION_2026-09-27.md](MIDNIGHT_ONLY_VALIDATION_2026-09-27.md).
 
 The evidence in the next section is historical for commits996d5de/7492d13/578bd23.
 It must not be presented as acceptance of the corrected default.

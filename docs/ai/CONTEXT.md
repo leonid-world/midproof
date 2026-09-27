@@ -9,14 +9,22 @@ independent results. No MetaMask, GIWA RPC, receivable creation, token, funding,
 or operator faucet step is required for the demo. Pending CAPTCHA consent is
 obsolete; no faucet claim or fixture transaction occurred.
 
-Implementation is being corrected to automatically encrypted internal auth keys,
-reserved synthetic context, ordinary-route separation, and a five-service local
-Compose startup with login-account seeding only. Existing Preview identity,
-contract, DB and original repositories stay preserved. The prior 974 checks and
-EVM-backed live evidence describe the earlier version, not this correction.
+Implementation e2aa554 is public and deployed. Encrypted internal auth keys,
+reserved synthetic context, ordinary-route separation and five-service local
+Compose startup require no GIWA preparation. Four local proofs/restart and an
+anonymous final clone proof passed. Public browser Seller/Buyer × true/false
+also passed on the same Preview contract. Hosted restart and same-session latest-result recovery passed without reproof.
+Both Vercel and Railway now connect to the new main branch; Vercel root is giwa-ui.
+Existing Preview identity, contract, DB and original repositories stay preserved.
+The prior 974 checks/EVM-backed evidence describe the earlier version; corrected
+evidence is in MIDNIGHT_ONLY_VALIDATION_2026-09-27.md.
 
 
-## 2026-09-27 Owner-approved submission monorepo and wallet-free demo
+## Historical: 2026-09-27 initial submission monorepo and wallet-free demo
+
+The following is the pre-ADR-025 record, not an active request or deployment
+status. Its pending GIWA fixture/CAPTCHA requirements were withdrawn; the
+correction and completed acceptance above supersede them.
 
 The owner approved implementation/publication of `leonid-world/midproof`, a
 wallet-free hosted synthetic review experience and one-command isolated local
