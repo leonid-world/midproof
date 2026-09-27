@@ -52,7 +52,7 @@ DB나 지갑을 복사하거나 연결하지 않습니다. 네 하위 프로젝�
 
 ```sh
 docker compose stop
-docker compose start
+docker compose up -d
 ```
 
 포트 변경, 서비스 구성, 상태 보존 설명은 [로컬 실행 안내](docker/local/README.md)를

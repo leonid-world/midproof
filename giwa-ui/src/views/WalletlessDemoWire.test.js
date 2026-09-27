@@ -3,6 +3,7 @@ import { createPinia, disposePinia, setActivePinia } from 'pinia'
 import { afterEach, expect, it, vi } from 'vitest'
 import { setAuthSessionToken } from '../services/authSession'
 import WalletlessDemoView from './WalletlessDemoView.vue'
+import finalizedRuns from '../test/walletlessLocalFinalizedRuns.json'
 
 let wrapper
 let pinia
@@ -11,6 +12,7 @@ afterEach(() => {
   if (pinia) disposePinia(pinia)
   setAuthSessionToken(null)
   vi.unstubAllGlobals()
+  vi.useRealTimers()
 })
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -92,3 +94,60 @@ it('handles real Node nested error envelopes through fetch, allowing first conse
   expect(fetcher.mock.calls[2][1].headers.get('Authorization')).toBe('Bearer limited-demo-jwt')
   expect(wrapper.text()).toContain('가상 기관 확인 중')
 })
+
+it.each(finalizedRuns)(
+  'renders actual finalized $subjectRole/$profileId after recovering the pending run',
+  async (completed) => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(Number(completed.result.profileAsOf) * 1000 + 60_000)
+    pinia = createPinia()
+    setActivePinia(pinia)
+    setAuthSessionToken('limited-demo-jwt')
+    const pending = { ...completed, status: 'proving' }
+    delete pending.result
+    delete pending.transactionId
+    delete pending.blockHeight
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        json({
+          mode: 'hosted-demo',
+          networkId: completed.networkId,
+          contractAddress: completed.midnightContractAddress,
+          runtime: { status: 'ready' },
+          walletlessDemo: {
+            enabled: true,
+            giwaChainId: completed.giwaChainId,
+            receivableFinanceAddress: completed.receivableFinanceAddress,
+            onchainReceivableId: completed.onchainReceivableId,
+          },
+          profiles: [
+            { id: completed.profileId, label: '실제 로컬 합성 사례', summary: '공개 응답 회귀' },
+          ],
+        }),
+      )
+      .mockResolvedValueOnce(json(pending))
+      .mockResolvedValueOnce(json(completed))
+    vi.stubGlobal('fetch', fetcher)
+    wrapper = mount(WalletlessDemoView, { global: { plugins: [pinia] } })
+    await flushPromises()
+    expect(wrapper.text()).toContain('실제 ZK 증명 생성 중')
+    await wrapper
+      .findAll('button')
+      .find((item) => item.text().includes('기존 요청 상태 확인'))
+      .trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[role=alert]').exists()).toBe(false)
+    expect(wrapper.text()).toContain(
+      completed.result.eligible ? '요청한 기준 충족' : '요청한 기준 미충족',
+    )
+    expect(wrapper.text()).toContain(completed.transactionId)
+    expect(wrapper.text()).toContain(completed.blockHeight)
+    expect(fetcher).toHaveBeenCalledTimes(3)
+    expect(fetcher.mock.calls[2][0]).toContain('/midnight-proof/v2/demo-runs/status')
+    expect(JSON.parse(fetcher.mock.calls[2][1].body)).toEqual({
+      version: 2,
+      runId: completed.runId,
+    })
+  },
+)

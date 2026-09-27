@@ -50,7 +50,7 @@ Preview transaction or real-world financial verification.
 
 ```sh
 docker compose stop
-docker compose start
+docker compose up -d
 ```
 
 Normal stop/start preserves MySQL, Anvil history, Midnight chain, Indexer,

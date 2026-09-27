@@ -1,8 +1,9 @@
 # Isolated local demo validation — 2026-09-27
 
-Status: **in progress**. This is actual Local Devnet evidence, not Preview or
-public-site verification. The original GASOK directory, database, wallet and
-Railway state were not mounted or started.
+Status: **four real proofs and full-stack restart passed; fresh-clone acceptance
+in progress**. This is actual Local Devnet evidence, not Preview or public-site
+verification. The original GASOK directory, database, wallet and Railway state
+were not mounted or started.
 
 ## Environment and automatic setup
 
@@ -49,17 +50,54 @@ Transaction:
 local block **91**. Native eligibility proving took approximately 2.30 seconds;
 transaction finalization and Indexer visibility are additional time.
 
+After rebuilding the final application and frontend, all four requested paths
+completed through the actual authenticated web proxy and independent Indexer:
+
+| Role / fixture | Eligible | Transaction | Local block |
+| --- | --- | --- | --- |
+| Seller / steady | true | `0077a89722c15d05767edb97a2ef3efcd32b62d314d3e4fb371b873727fbd1562b` | 143 |
+| Seller / stretched | false | `0058cf45b70ed17947876bffe5267ad5fe7f0e105411f440da5a876bb16b227e22` | 147 |
+| Buyer / steady | true | `00be791178931b839f176192653999b708b23f0a466d74aa91fbf6946a13b9e331` | 151 |
+| Buyer / stretched | false | `00393e6d271dbba48989481fa3c49d1e91f94535ec795d5fb7a03a5534cd26bd20` | 155 |
+
+Every result used Provider 2. The same HTTP harness verified missing consent
+returns 400, the demo JWT cannot access `/receivables` (403), a fresh session
+cannot recover a prior session, a different same-role session cannot read a run
+(403), and replaying the same start input returns the same run and transaction.
+
+The complete Compose stack was stopped, including MySQL, Anvil, Midnight Node,
+Indexer, application and web. It was brought back using the same named volumes
+and the final image containing license notices. The harness retained JWTs only
+in memory across that downtime; all four status and recover calls returned the
+same eligible values, transaction IDs and block heights after restart. These
+calls perform independent result resolution. No proof was resubmitted and the
+Midnight contract and GIWA fixture addresses stayed unchanged.
+
+The subsequent browser check exposed a frontend response-validation issue:
+Ledger 8.1 returned a 66-character `00`-prefixed transaction ID, while the UI
+accepted only 64-character IDs. The real four public responses above reproduced
+the rejection without creating another proof. They are now regression fixtures;
+the parser preserves the complete Ledger ID and rejects malformed metadata.
+Backend proof results were already complete and were retained during the fix.
+
 ## Automated checks
 
 - Root runner/fixture/local-profile checks: **16/16 pass**.
 - Local Solidity build: **26 files compiled**.
-- Integrated Docker local-demo image: build passed (four Midnight workspaces
-  plus Spring bootJar); it will be rebuilt after concurrent final source edits.
+- Integrated Docker local-demo image and final frontend: builds passed (four
+  Midnight workspaces plus Spring bootJar). The final runtime includes upstream
+  notices and licenses.
+
+## Anonymous fresh clone
+
+An HTTPS clone with credential helpers and extra authentication headers disabled
+retrieved public commit `996d5dea961ff1bd9a1e2589aeb11b3c43476bfa` into a new
+temporary directory. Git status was clean; the checkout was approximately
+38 MB. It had no developer ignored files or prior runtime volumes. Build and
+actual new-volume startup are being checked separately from the first stack.
 
 ## Remaining acceptance checks
 
-- Final app/web rebuild from the completed implementation.
 - Browser Seller/Buyer × steady/stretched true/false through the new route.
-- Complete stack restart and recover/requery without proof resubmission.
 - Actual fresh clone with no author ignored files and independent new volumes.
 - Public Preview/site verification is a separate report and not implied here.

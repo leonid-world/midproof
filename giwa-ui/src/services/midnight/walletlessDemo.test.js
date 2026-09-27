@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiRequest } from '../api'
+import finalizedRuns from '../../test/walletlessLocalFinalizedRuns.json'
 import { demoRunRequest, parseDemoRun, loadWalletlessConfig } from './walletlessDemo'
 vi.mock('../api', () => ({ apiRequest: vi.fn() }))
 function runFixture(overrides = {}) {
@@ -105,4 +106,29 @@ describe('walletless demo public result boundary', () => {
     })
     await expect(loadWalletlessConfig()).rejects.toThrow()
   })
+})
+
+// Public HTTP results from the actual local Ledger 8.1 proof run on 2026-09-27.
+// No JWT, witness, signature or capability is retained in this fixture.
+it.each(finalizedRuns)(
+  'accepts actual finalized $subjectRole/$profileId metadata without truncation',
+  (run) => {
+    const output = parseDemoRun(run, {
+      config: { networkId: run.networkId, contractAddress: run.midnightContractAddress },
+      expected: { ...run, status: 'proving' },
+    })
+    expect(output.result.eligible).toBe(run.result.eligible)
+    expect(output.transactionId).toBe(run.transactionId)
+    expect(output.transactionId).toHaveLength(66)
+    expect(output.blockHeight).toBe(run.blockHeight)
+  },
+)
+it.each([
+  'f'.repeat(63),
+  'f'.repeat(65),
+  'f'.repeat(67),
+  '01' + 'f'.repeat(64),
+  '00' + 'z'.repeat(64),
+])('rejects malformed transaction metadata %s', (transactionId) => {
+  expect(() => parseDemoRun({ ...finalizedRuns[0], transactionId })).toThrow()
 })

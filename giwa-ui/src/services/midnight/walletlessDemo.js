@@ -13,6 +13,9 @@ const STATES = new Set([
 const HASH = /^0x[0-9a-f]{64}$/
 const ADDRESS = /^0x[0-9a-f]{40}$/
 const CONTRACT = /^[0-9a-f]{64}$/
+// Ledger 8.1 finalized IDs include the 00 identifier tag before the 32-byte hash.
+// Preserve that tag; transaction metadata is distinct from a request/contract hash.
+const TRANSACTION_ID = /^(?:0x)?(?:00)?[0-9a-f]{64}$/
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const DECIMAL = /^(0|[1-9][0-9]*)$/
 const PUBLIC_FIELDS = [
@@ -153,7 +156,7 @@ export function parseDemoRun(value, { config, expected } = {}) {
     }
   }
   if (value.transactionId !== undefined) {
-    if (typeof value.transactionId !== 'string' || !/^(0x)?[0-9a-f]{64}$/.test(value.transactionId))
+    if (typeof value.transactionId !== 'string' || !TRANSACTION_ID.test(value.transactionId))
       throw invalid()
     output.transactionId = value.transactionId
   }
