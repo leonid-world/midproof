@@ -1,5 +1,21 @@
 # Current Context
 
+## 2026-09-27 Correction: no GIWA preparation for the Midnight-only demo
+
+The owner rejected the unnecessary dedicated funded GIWA fixture dependency.
+ADR-025 supersedes that part of ADR-024. Test login must lead directly to fixed
+fictional financial scenarios, real Compact proofs, Preview submission and
+independent results. No MetaMask, GIWA RPC, receivable creation, token, funding,
+or operator faucet step is required for the demo. Pending CAPTCHA consent is
+obsolete; no faucet claim or fixture transaction occurred.
+
+Implementation is being corrected to automatically encrypted internal auth keys,
+reserved synthetic context, ordinary-route separation, and a five-service local
+Compose startup with login-account seeding only. Existing Preview identity,
+contract, DB and original repositories stay preserved. The prior 974 checks and
+EVM-backed live evidence describe the earlier version, not this correction.
+
+
 ## 2026-09-27 Owner-approved submission monorepo and wallet-free demo
 
 The owner approved implementation/publication of `leonid-world/midproof`, a

@@ -1,3 +1,4 @@
+import { isSyntheticSubjectId } from '../../../shared/synthetic-context.mjs';
 import { validateDemoActor, type DemoActor, type DemoRuns } from './demo-runs.js';
 import http, { type IncomingMessage, type ServerResponse, type Server } from 'node:http';
 import { timingSafeEqual } from 'node:crypto';
@@ -75,6 +76,7 @@ export async function fetchAuthority(config: DemoConfig, token: string, requestI
 function validateAuthority(context: AuthorityContext, requestId: string, state: RuntimeState, config: DemoConfig): void {
   if (!context || context.requestId !== requestId || !/^[1-9][0-9]*$/.test(context.actorId) || !/^[1-9][0-9]*$/.test(context.companyId) || !walletPattern.test(context.subjectWallet)) throw unavailable();
   if (context.networkId !== config.networkId || context.midnightContractAddress !== state.contractAddress || context.giwaChainId !== GIWA_CHAIN_ID.toString() || context.receivableFinanceAddress !== RECEIVABLE_FINANCE_ADDRESS) throw new ProofBridgeHttpError(409, 'MIDNIGHT_DEPLOYMENT_MISMATCH', 'This request belongs to another Midnight deployment.');
+  if (isSyntheticSubjectId(context.onchainReceivableId)) throw denied();
   if (context.policyRequest?.requestId !== requestId) throw unavailable();
 }
 function assertCapability(capability: ProofCapability, context: AuthorityContext): void {

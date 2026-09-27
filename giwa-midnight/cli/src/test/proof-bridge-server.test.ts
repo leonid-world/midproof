@@ -1,3 +1,4 @@
+import { SYNTHETIC_SUBJECT_ID } from '../../../shared/synthetic-context.mjs';
 // This file is part of the GASOK Midnight local proof-of-concept.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -492,4 +493,9 @@ describe('Proof Bridge HTTP boundary', () => {
     expect(text).toContain('PROOF_RESULT_IN_PROGRESS');
     expect(text).not.toContain(challenge.message.requestId);
   });
+});
+
+it('rejects reserved synthetic subjects on the ordinary local bridge before preparation', async () => {
+  const x=await startServer();const response=await fetch(x.origin+'/v2/proof-sessions/challenge',{method:'POST',headers:protectedHeaders(),body:JSON.stringify({...challengeBody,onchainReceivableId:SYNTHETIC_SUBJECT_ID})});
+  expect(response.status).toBe(400);expect(x.controller.createChallenge).not.toHaveBeenCalled();
 });

@@ -47,6 +47,7 @@ RUN chmod +x /app/scripts/midnight-container-entrypoint.sh
 ENV NODE_ENV=production \
     SPRING_PROFILES_ACTIVE=midnight-demo \
     MIDNIGHT_DEMO_MODE=hosted-demo \
+    MIDPROOF_SYNTHETIC_ONLY=true \
     MIDNIGHT_NETWORK_ID=preview \
     MIDNIGHT_DEMO_STATE_DIR=/data/midnight-demo \
     XDG_CACHE_HOME=/data/cache \

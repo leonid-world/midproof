@@ -4,15 +4,18 @@
 
 The owner approved the new `leonid-world/midproof` monorepo and existing-service
 deployment. The reviewer local command is `docker compose up --build -d` from
-its root; it creates separate Local Devnet/EVM/MySQL state and does not need the
-hosted wallet or faucet. See `docker/local/README.md` and ADR-024.
+its root; it creates separate Local Devnet/MySQL state and does not need the
+hosted wallet or faucet. See `docker/local/README.md` and ADR-025.
 
 Hosted deployment keeps the existing Railway integrated service, persistent
 `/data/midnight-demo`, MySQL and `midproof.vercel.app`. Upload this monorepo root
 to Railway. Vercel must build the `giwa-ui` root on the new repository's `main`.
-The operator fixture path is supplied through `MIDPROOF_DEMO_FIXTURE_FILE` and
-must reference the dedicated owner-only synthetic keys, never source or browser
-configuration. Existing wallet, contract, provider and migration journal remain.
+The runner/container enables `MIDPROOF_SYNTHETIC_ONLY=true`. Startup prepares only
+the synthetic login accounts and encrypted internal demo authentication keys;
+there is no GIWA role-wallet/receivable/faucet preparation or fixture upload.
+The demo uses a reserved synthetic context and performs no GIWA RPC calls.
+Ordinary GIWA flows retain their original authorization and RPC boundaries.
+Existing Midnight wallet, contract, provider and migration journal remain.
 
 Actual rollout IDs, public validation and unfinished items are recorded in
 [MIDPROOF_RELEASE_2026-09-27.md](MIDPROOF_RELEASE_2026-09-27.md). The historical

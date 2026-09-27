@@ -5,18 +5,24 @@
 This is the owner-approved `leonid-world/midproof` monorepo. The four application
 directories are ordinary folders, not submodules; `main` is the release branch.
 Original GASOK submodule status rules below apply only when working in that
-original checkout. Preserve its state and history. Read ADR-024 and
+original checkout. Preserve its state and history. Read ADR-024/ADR-025 and
 `docs/ai/MIDPROOF_RELEASE_2026-09-27.md` before using older architecture notes.
 
 The owner approved a wallet-free synthetic review route and an isolated local
 Compose profile. Public hosting stays on Preview with existing Railway/MySQL
-and Vercel. The local profile runs Node/Indexer/Prover and local EVM automatically
+and Vercel. The local profile runs Node/Indexer/Prover automatically
 with entirely separate state; it does not use the hosted wallet or faucet.
 Only that explicit local profile may use chain 31337 and public development
 genesis material. Preview pins remain fail-closed.
 
+The owner clarified that the demo must need no GIWA receivable, RPC, asset wallet,
+test ETH, mKRW, or funding setup, including operator preparation. Use fixed
+fictional scenario context and automatically retained encrypted internal demo
+authentication keys. Preserve actual Compact proofs, Preview submission and
+independent result reads. CAPTCHA/faucet work is no longer part of this task.
+
 Demo JWTs are limited to the isolated demo route. Server-side role signing uses
-dedicated synthetic fixture keys and exact authorized challenges; it must never
+internal synthetic authentication keys and exact authorized challenges; it must never
 become a generic signing or asset-transaction endpoint. Ordinary GIWA flows keep
 their existing authentication. Demo-run capability custody is encrypted in Node;
 ordinary request custody still uses Spring. Preserve actual proof/chain/read

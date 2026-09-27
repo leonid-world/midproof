@@ -68,6 +68,7 @@ export class DemoRuns {
           || !/^[0-9]+$/.test(run.validUntil) || run.networkId !== options.fixture.networkId
           || run.giwaChainId !== options.fixture.giwaChainId || run.receivableFinanceAddress !== options.fixture.receivableFinanceAddress
           || run.onchainReceivableId !== options.fixture.onchainReceivableId
+          || run.intendedFunderWallet !== options.fixture.intendedFunderWallet
           || !['SELLER','BUYER'].includes(run.subjectRole) || !DEMO_PROFILES.some((p) => p.id === run.profileId)
           || !['preparing','proving','submitted','completed','failed','uncertain','expired'].includes(run.status)
           || run.partyWallet !== options.fixture.wallets[run.subjectRole]) throw new Error('DEMO_RUN_STORE_INVALID');

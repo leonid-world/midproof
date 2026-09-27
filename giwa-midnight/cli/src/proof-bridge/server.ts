@@ -1,3 +1,4 @@
+import { isSyntheticSubjectId } from '../../../shared/synthetic-context.mjs';
 // This file is part of the GASOK Midnight local proof-of-concept.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -360,7 +361,9 @@ export function createProofBridgeServer(options: ProofBridgeServerOptions): http
         const path = validateRequestBoundary(request, allowedOrigins, allowedHosts);
         const body = await readJsonBody(request);
         if (path === CHALLENGE_PATH) {
-          sendJson(response, 201, await options.controller.createChallenge(parseChallengeRequest(body)));
+          const challenge = parseChallengeRequest(body);
+          if (isSyntheticSubjectId(challenge.onchainReceivableId)) throw invalidRequest();
+          sendJson(response, 201, await options.controller.createChallenge(challenge));
           return;
         }
         if (path === PROVE_PATH) {

@@ -1,3 +1,5 @@
+import type { DemoFixture } from './demo-fixture.js';
+import { validateSyntheticContext } from '../../../shared/synthetic-context.mjs';
 import { resolveExactProofCapability } from 'giwa-midnight-api/resolve';
 import type { DemoResult } from './demo-runs.js';
 import path from 'node:path';
@@ -143,7 +145,7 @@ async function deployOrRestore(config: DemoConfig, providers: GasokEligibilityPr
   await providers.privateStateProvider.set('gasokEligibilityPrivateState', api.sanitizeEligibilityPrivateState(privateState));
   return api.joinContract(providers, manifest.contractAddress);
 }
-export async function bootstrapDemo(config: DemoConfig, identity: DemoIdentity, password: string, state: RuntimeState, registerCleanup?: (close: () => Promise<void>) => void): Promise<DemoRuntime> {
+export async function bootstrapDemo(config: DemoConfig, identity: DemoIdentity, password: string, state: RuntimeState, registerCleanup?: (close: () => Promise<void>) => void, syntheticFixture?: DemoFixture): Promise<DemoRuntime> {
   setNetworkId(config.networkId);
   api.setLogger(pino({ level: 'silent' }));
   process.env.MIDNIGHT_STORAGE_PASSWORD = password;
@@ -241,7 +243,10 @@ export async function bootstrapDemo(config: DemoConfig, identity: DemoIdentity, 
       ledgerState = await api.getGasokEligibilityLedgerState(providers, address);
     }
     const giwa = validateLocalPreflight(ledgerState, { providerId: 2, publicKey: providerPk, approvedMidnightContractAddress: address });
-    attestation = createAttestationServer(providerSk, { approvedMidnightContractAddress: address, allowFinancialInput: isDemoFinancialInput });
+    const syntheticContext = config.syntheticOnly && syntheticFixture ? validateSyntheticContext(syntheticFixture) : undefined;
+    if (config.syntheticOnly && !syntheticContext) throw new Error('SYNTHETIC_CONTEXT_MISMATCH');
+    attestation = createAttestationServer(providerSk, { approvedMidnightContractAddress: address,
+      allowFinancialInput: isDemoFinancialInput, syntheticDemoContext: syntheticContext });
     await new Promise<void>((resolve, reject) => { attestation!.once('error', reject); attestation!.listen(0, '127.0.0.1', resolve); });
     const providerAddress = attestation.address();
     if (!providerAddress || typeof providerAddress === 'string') throw new Error('Mock Provider failed to bind privately.');
@@ -277,7 +282,7 @@ export async function bootstrapDemo(config: DemoConfig, identity: DemoIdentity, 
     return { controller: runtime, reader, readHealthy: () => getEligibilityResult.getHealth?.().status !== 'degraded', close: stop,
       transaction: (requestId) => transactions.get(requestId),
       async resolveCapability(capability) {
-        const { result } = await resolveExactProofCapability(capability, address, getEligibilityResult, '2', AbortSignal.timeout(12_000));
+        const { result } = await resolveExactProofCapability(capability, address, getEligibilityResult, '2', AbortSignal.timeout(12_000), undefined, syntheticContext);
         return { ...result, providerId: Number(result.providerId) };
       },
     };

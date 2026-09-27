@@ -1,3 +1,4 @@
+import { SYNTHETIC_SUBJECT_ID } from '../../../shared/synthetic-context.mjs';
 import http, { type Server } from 'node:http';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createDemoGateway, type AuthorityContext, type RuntimeState, type SessionOwner } from '../hosted-demo/gateway.js';
@@ -90,4 +91,13 @@ describe('hosted synthetic proof gateway', () => {
   it('exposes metadata without raw facts and reports funding pending', async () => {
     const x = await setup(); x.state.status = 'funding_required'; x.state.code = 'AWAITING_TEST_FUNDS'; expect((await fetch(x.origin + '/health')).status).toBe(200); expect((await fetch(x.origin + '/ready')).status).toBe(503); const response = await fetch(x.origin + '/midnight-proof/v2/demo/config'); const body = await response.json() as { networkId: string; contractAddress: string; profiles: unknown[] }; expect(response.status).toBe(200); expect(body.networkId).toBe('preview'); expect(body.contractAddress).toBe(contractAddress); expect(body.profiles[0]).not.toHaveProperty('annualRevenueKrw'); expect((await x.post('challenge', { version: 2, requestId, profileId: 'steady' })).status).toBe(503); expect(x.authorize).not.toHaveBeenCalled();
   });
+});
+
+it('rejects the reserved synthetic context on every ordinary hosted proof operation', async () => {
+  const x = await setup(); x.authorize.mockResolvedValue({...context,onchainReceivableId:SYNTHETIC_SUBJECT_ID});
+  for(const operation of ['challenge','prove','status','cancel','recover','ack']) {
+    const body=operation==='challenge'?{version:2,requestId,profileId:'steady'}:operation==='recover'?{version:2,requestId}:operation==='prove'?{version:2,requestId,sessionId,authorization}:{version:2,requestId,sessionId};
+    expect((await x.post(operation,body)).status).toBe(403);
+  }
+  expect(x.controller.createChallenge).not.toHaveBeenCalled();expect(x.controller.startProof).not.toHaveBeenCalled();expect(x.controller.recover).not.toHaveBeenCalled();
 });

@@ -1,7 +1,21 @@
 # MidProof submission release — 2026-09-27
 
-Status: **source publication and local acceptance complete; public wallet-free
-activation pending**. Local evidence does not certify the public Preview path.
+Status: **Midnight-only correction in progress**. The prior EVM-backed demo
+passed local acceptance but did not satisfy the owner's intended absence of
+operator GIWA preparation. ADR-025 supersedes that dependency.
+
+## Current correction
+
+The user clarified that even the operator must not need a funded GIWA role wallet
+or actual receivable to prepare the Midnight review. The faucet/CAPTCHA request
+is withdrawn; no token claim or fixture transaction occurred. The new default
+uses fixed fictional scenario context, automatically encrypted internal demo
+authentication, actual Compact proofs and existing Midnight chain verification.
+The local startup excludes EVM and receivable preparation. New source, local
+and public acceptance evidence will be recorded below.
+
+The evidence in the next section is historical for commits996d5de/7492d13/578bd23.
+It must not be presented as acceptance of the corrected default.
 
 ## Owner approval
 
@@ -59,16 +73,15 @@ database, wallet and contract state. See ADR-024.
   reports the new dedicated wallets still need free test gas; no fixture
   transaction has been submitted. Existing MetaMask keys are not used.
 
-## Acceptance checks pending
+## Earlier pending checks (superseded by ADR-025)
 
 - Hosted GIWA fixture using separate synthetic-role keys and free test gas.
 - Secure fixture installation, hosted activation and public browser proof/recovery.
 - Promote the prepared Vercel frontend; connect future deployment to the new
   repository's main branch and giwa-ui root directory.
 
-The official Nodit faucet requires reCAPTCHA. A user confirmation request is
-pending because browser automation requires consent at the CAPTCHA action.
-The faucet form contains only the new public synthetic seller address.
+The earlier Nodit CAPTCHA request is obsolete. The owner clarified the intended
+Midnight-only path; no faucet or funded GIWA role fixture will be used.
 
 The 2026-09-18 funding/repayment rehearsal is a separate historical flow; this
 review demo does not silently complete it. No hackathon submission form has been

@@ -1,3 +1,4 @@
+import type { SyntheticDemoContext } from '../../shared/synthetic-context.mjs';
 import { verifyProofCapability } from './capability.js';
 import { proofResultExpired, PublicApiError } from './errors.js';
 import type { GetEligibilityResult } from './eligibility.js';
@@ -5,8 +6,8 @@ import type { GetEligibilityResult } from './eligibility.js';
 /** Shared exact read boundary for the HTTP API and the isolated walletless demo. */
 export async function resolveExactProofCapability(value: unknown, approvedContractAddress: string,
   getEligibilityResult: GetEligibilityResult, acceptedProviderId?: string, signal?: AbortSignal,
-  nowSeconds = () => BigInt(Math.floor(Date.now() / 1000))) {
-  const verified = verifyProofCapability(value, approvedContractAddress);
+  nowSeconds = () => BigInt(Math.floor(Date.now() / 1000)), syntheticContext?: SyntheticDemoContext) {
+  const verified = verifyProofCapability(value, approvedContractAddress, syntheticContext);
   if (BigInt(verified.capability.validUntil) <= nowSeconds()) throw proofResultExpired();
   const result = await getEligibilityResult(verified.capability.midnightContractAddress, verified.lookupKeyBytes, signal);
   signal?.throwIfAborted();

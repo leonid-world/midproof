@@ -316,6 +316,7 @@ export async function main(args = process.argv.slice(2)) {
     MIDNIGHT_DEMO_STATE_DIR: config.stateDir, MIDNIGHT_DEMO_PORT: String(config.publicPort),
     MIDNIGHT_DEMO_AUTHORITY_URL: `http://127.0.0.1:${config.springPort}`,
     MIDNIGHT_PROOF_SERVER_URL: config.proofUrl.origin, MIDNIGHT_DEMO_INTERNAL_TOKEN: token,
+    MIDPROOF_SYNTHETIC_ONLY: process.env.MIDPROOF_SYNTHETIC_ONLY ?? 'true',
     MIDNIGHT_PROOF_SERVER_NUM_WORKERS: process.env.MIDNIGHT_PROOF_SERVER_NUM_WORKERS || '1',
   };
   if (mode !== 'database' && await portOpen(config.publicPort)) {
@@ -345,10 +346,10 @@ export async function main(args = process.argv.slice(2)) {
     await delay(1000);
   }
   if (!springReady) fail('Spring did not become ready on its private port.');
-  if (process.env.MIDPROOF_LOCAL_PREPARE_ACCOUNTS === 'true') {
+  if (env.MIDPROOF_SYNTHETIC_ONLY === 'true' || process.env.MIDPROOF_LOCAL_PREPARE_ACCOUNTS === 'true') {
     await command(process.execPath, [join(ROOT, 'scripts', 'prepare-local-demo-accounts.mjs')], { env, timeout: 60000 });
   }
-  if (process.env.MIDNIGHT_DEMO_PREPARE_FIXTURE !== 'false') {
+  if (env.MIDPROOF_SYNTHETIC_ONLY !== 'true' && process.env.MIDNIGHT_DEMO_PREPARE_FIXTURE !== 'false') {
     log('Preparing the approved synthetic demo accounts and existing public receivable through normal application APIs.');
     await command(process.execPath, [join(ROOT, 'scripts', 'prepare-midnight-demo.mjs')], { env, timeout: 300000 });
   }

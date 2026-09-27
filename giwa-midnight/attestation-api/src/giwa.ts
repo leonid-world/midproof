@@ -1,3 +1,4 @@
+import { isSyntheticSubjectId } from '../../shared/synthetic-context.mjs';
 import type { SubjectRole } from './types.js';
 
 import { readGiwaContext } from '../../shared/giwa-config.mjs';
@@ -153,6 +154,7 @@ export function createGiwaSepoliaReceivableResolver(
 
   return {
     async resolve(receivableId: bigint): Promise<GiwaReceivable> {
+      if (isSyntheticSubjectId(receivableId)) throw new GiwaReceivableNotFoundError();
       if (!verifiedChain) {
         const chainId = parseRpcHex(await rpcCall(rpcUrl, 'eth_chainId', []), 'chain ID');
         if (chainId !== GIWA_CHAIN_ID) {

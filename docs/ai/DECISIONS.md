@@ -1099,3 +1099,41 @@ raw facts from the operator.
 Reason: reviewers must be able to exercise the actual Midnight contribution
 without reproducing the owner's MetaMask accounts, Sepolia funding setup or
 multi-repository development environment.
+
+
+## ADR-025 — Midnight-only synthetic review without GIWA preparation
+
+Date: 2026-09-27. Status: owner-directed correction to ADR-024.
+
+The owner clarified that the review experience must start from a test login and
+reach actual Midnight verification without MetaMask, GIWA test ETH, receivable
+creation, mKRW, funding, or operator-side preparation of those dependencies.
+The previous dedicated funded role-fixture plan was unnecessary and is retired.
+No faucet claim or GIWA fixture transaction was executed for that plan.
+
+Use the existing limited demo JWT, actor/session binding and explicit UI consent.
+The server expands only named fictional financial scenarios and uses a reserved
+synthetic subject context. Internal authentication keys are generated once and
+stored encrypted automatically; they are not funded asset wallets and need no
+user configuration. Existing EIP-712 validation protects this internal protocol.
+The synthetic Provider resolver performs no GIWA RPC call. Ordinary Provider,
+gateway and result ingress reject the reserved demo context, while the dedicated
+demo result path verifies the exact synthetic binding. Ordinary GIWA authorization
+and asset operations remain unchanged.
+
+The actual Compact financial/signature proof, existing Preview contract and
+wallet, encrypted outbox/custody/ACK and independent Indexer result verification
+remain. The sealed GIWA deployment fields in the current circuit are compatibility
+binding metadata in this demo; they do not assert that a real receivable exists.
+No circuit change or hosted contract redeployment is necessary.
+
+The default clone runtime contains MySQL, Midnight Node/Indexer, the integrated
+app/Proof Server and Vue. Remove EVM and receivable setup from that startup path.
+Use a new Compose project name to preserve prior test volumes whose contract
+binding differs. Automatically seed only the fictional login accounts. Existing
+GASOK source, contract code, hosted DB, encrypted state and historical evidence
+remain preserved.
+
+The user-facing path is: test login → choose fictional company scenario → consent
+→ generate actual Midnight proof → verify the recorded result. Synthetic input
+must never be described as a verified bank statement or an actual GIWA asset.

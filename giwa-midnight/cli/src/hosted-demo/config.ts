@@ -5,6 +5,7 @@ import { currentDir } from '../config.js';
 export type DemoNetwork = 'preview' | 'undeployed';
 export interface DemoConfig extends Config {
   networkId: DemoNetwork;
+  syntheticOnly?: boolean;
   stateDir: string;
   port: number;
   authorityUrl: string;
@@ -20,6 +21,7 @@ function endpoint(value: string, protocols: string[], name: string): string {
 }
 export function readDemoConfig(env: NodeJS.ProcessEnv = process.env): DemoConfig {
   if (env.MIDNIGHT_DEMO_MODE !== 'hosted-demo') throw new Error('MIDNIGHT_DEMO_MODE must be hosted-demo.');
+  if (env.MIDPROOF_SYNTHETIC_ONLY !== undefined && !['true', 'false'].includes(env.MIDPROOF_SYNTHETIC_ONLY)) throw new Error('Invalid synthetic demo mode.');
   const networkId = env.MIDNIGHT_NETWORK_ID ?? 'preview';
   if (networkId !== 'preview' && networkId !== 'undeployed') throw new Error('Only Preview and undeployed demo networks are supported.');
   const port = Number(env.MIDNIGHT_DEMO_PORT ?? env.PORT ?? '8080');
@@ -33,7 +35,7 @@ export function readDemoConfig(env: NodeJS.ProcessEnv = process.env): DemoConfig
   const origins = (env.MIDNIGHT_DEMO_ALLOWED_ORIGINS ?? 'http://localhost:5173,http://127.0.0.1:5173').split(',').map((value) => value.trim()).filter(Boolean);
   for (const value of origins) if (new URL(value).origin !== value || !['https:', 'http:'].includes(new URL(value).protocol)) throw new Error('Invalid demo browser origin.');
   return {
-    networkId, stateDir, port, authorityUrl, internalToken, allowedOrigins: new Set(origins),
+    networkId, syntheticOnly: env.MIDPROOF_SYNTHETIC_ONLY === 'true', stateDir, port, authorityUrl, internalToken, allowedOrigins: new Set(origins),
     logDir: path.join(stateDir, 'demo.log'),
     privateStateDatabase: path.join(stateDir, 'private-state'),
     node: endpoint(env.MIDNIGHT_NODE_URL ?? (preview ? 'https://rpc.preview.midnight.network' : 'http://127.0.0.1:9944'), ['http:', 'https:', 'ws:', 'wss:'], 'node'),

@@ -1,3 +1,4 @@
+import { isSyntheticSubjectId, matchesSyntheticBinding, validateSyntheticContext, type SyntheticDemoContext } from '../../shared/synthetic-context.mjs';
 import { timingSafeEqual } from 'node:crypto';
 import { GasokEligibility } from 'zkloan-credit-scorer-contract';
 import { GIWA_CHAIN_ID, GIWA_RECEIVABLE_FINANCE_ADDRESS } from './config.js';
@@ -84,7 +85,7 @@ function sameBytes(left: Uint8Array, right: Uint8Array): boolean {
   return left.length === right.length && timingSafeEqual(left, right);
 }
 
-export function verifyProofCapability(value: unknown, approvedContractAddress: string): VerifiedProofCapability {
+export function verifyProofCapability(value: unknown, approvedContractAddress: string, syntheticContext?: SyntheticDemoContext): VerifiedProofCapability {
   if (!isRecord(value) || !hasExactKeys(value) || value.version !== 2 || value.evaluationVersion !== 2) {
     throw invalidProofCapability();
   }
@@ -111,6 +112,12 @@ export function verifyProofCapability(value: unknown, approvedContractAddress: s
   if (giwaChainId !== GIWA_CHAIN_ID || receivableFinanceAddress !== GIWA_RECEIVABLE_FINANCE_ADDRESS) {
     throw unapprovedGiwaContext();
   }
+
+  // Normal HTTP readers never accept this reserved namespace. Only the demo
+  // manager's in-process read supplies its exact persistent synthetic identity.
+  if (syntheticContext) {
+    if (!matchesSyntheticBinding(value, validateSyntheticContext(syntheticContext))) throw unapprovedGiwaContext();
+  } else if (isSyntheticSubjectId(onchainReceivableId)) throw unapprovedGiwaContext();
 
   let computedPolicyRequestHash: Uint8Array;
   let computedLookupKey: Uint8Array;

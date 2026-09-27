@@ -1,3 +1,4 @@
+import { isSyntheticSubjectId, validateSyntheticContext, type SyntheticDemoContext } from '../../shared/synthetic-context.mjs';
 import restify from 'restify';
 import type { Server as NodeHttpServer } from 'node:http';
 import {
@@ -112,6 +113,8 @@ class PublicApiError extends Error {
 
 export interface CreateServerOptions {
   receivableResolver?: GiwaReceivableResolver;
+  /** Explicit in-process hosted option; never populated from an HTTP request or environment. */
+  syntheticDemoContext?: SyntheticDemoContext;
   approvedMidnightContractAddress?: string;
   authorizationStore?: AuthorizationChallengeStore;
   /** Hosted demo accepts only server-owned synthetic tuples. Local CLI is unchanged. */
@@ -398,6 +401,14 @@ export function createServer(
   );
   const authorizationStore = options.authorizationStore ?? new AuthorizationChallengeStore();
   const receivableResolver = options.receivableResolver ?? createGiwaSepoliaReceivableResolver();
+  const synthetic = options.syntheticDemoContext ? validateSyntheticContext(options.syntheticDemoContext) : undefined;
+  if (synthetic && (synthetic.giwaChainId !== GIWA_CHAIN_ID.toString() || synthetic.receivableFinanceAddress !== RECEIVABLE_FINANCE_ADDRESS
+      || !options.allowFinancialInput)) throw new Error('SYNTHETIC_CONTEXT_MISMATCH');
+  const resolveReceivable = async (request: ParsedAttestationRequest) => {
+    if (!isSyntheticSubjectId(request.onchainReceivableId)) return receivableResolver.resolve(request.onchainReceivableId);
+    if (!synthetic || request.policyRequest.intendedFunderWallet !== synthetic.intendedFunderWallet) throw invalidRequest();
+    return { id: request.onchainReceivableId, seller: synthetic.wallets.SELLER, buyer: synthetic.wallets.BUYER };
+  };
   const server = restify.createServer({ name: 'gasok-mock-attestation-api' });
   const nodeServer = (server as RestifyServerWithNodeServer).server;
   nodeServer.requestTimeout = REQUEST_TIMEOUT_MS;
@@ -427,7 +438,7 @@ export function createServer(
       const body = requireExactRecord(req.body, CHALLENGE_REQUEST_KEYS) as unknown as AuthorizationChallengeRequest;
       const parsed = parseRequest(body as unknown as JsonRecord, approvedMidnightContractAddress);
       if (options.allowFinancialInput && !options.allowFinancialInput(parsed)) throw invalidRequest();
-      const receivable = await receivableResolver.resolve(parsed.onchainReceivableId);
+      const receivable = await resolveReceivable(parsed);
       if (receivable.id !== parsed.onchainReceivableId) {
         throw new GiwaRpcError('GIWA resolver returned a different receivable');
       }
@@ -493,7 +504,7 @@ export function createServer(
 
       // Re-read GIWA immediately before authorization verification and provider
       // signing so a role-wallet change after challenge issuance is rejected.
-      const receivable = await receivableResolver.resolve(parsed.onchainReceivableId);
+      const receivable = await resolveReceivable(parsed);
       if (receivable.id !== parsed.onchainReceivableId) {
         throw new GiwaRpcError('GIWA resolver returned a different receivable');
       }

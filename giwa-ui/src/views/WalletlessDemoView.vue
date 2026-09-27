@@ -198,7 +198,10 @@ onUnmounted(() => {
     <header class="demo-heading">
       <p class="eyebrow">MIDPROOF · INTERACTIVE DEMO</p>
       <h1>재무정보를 공개하지 않고,<br />기준 충족을 증명하세요.</h1>
-      <p>가상 기업을 선택하면 실제 Midnight ZK 증명을 만들고 체인에 기록된 결과를 확인합니다.</p>
+      <p>
+        미리 준비된 가상 기업 시나리오를 선택하고, 실제 Midnight ZK 증명과 체인에 기록된 결과를
+        확인하세요.
+      </p>
       <span class="network-badge">{{
         config?.networkId === 'undeployed'
           ? '로컬 Midnight 네트워크'
@@ -257,8 +260,8 @@ onUnmounted(() => {
             :disabled="Boolean(attempted) || busy || initializing"
           />
           <span
-            >선택한 가상 기업과 공개 기준을 확인했으며, 운영자의 데모 지갑으로 증명을 생성·제출하는
-            데 동의합니다.</span
+            >선택한 가상 기업 시나리오와 공개 기준을 확인했으며, 운영 서버가 합성 재무값으로
+            Midnight 증명을 생성·제출하는 데 동의합니다.</span
           >
         </label>
         <button
@@ -335,8 +338,8 @@ onUnmounted(() => {
               <dd>{{ selectedProfile?.label ?? run.profileId }}</dd>
             </div>
             <div>
-              <dt>역할 / 채권</dt>
-              <dd>{{ run.subjectRole }} · #{{ run.onchainReceivableId }}</dd>
+              <dt>시나리오 역할</dt>
+              <dd>{{ run.subjectRole === 'SELLER' ? '판매기업 · Seller' : '구매기업 · Buyer' }}</dd>
             </div>
             <div>
               <dt>기준</dt>
@@ -356,7 +359,7 @@ onUnmounted(() => {
             </div>
           </dl>
           <details v-if="run" class="evidence">
-            <summary>체인 기록과 요청 문맥</summary>
+            <summary>Midnight 체인 기록과 요청</summary>
             <dl class="context">
               <div>
                 <dt>요청</dt>
@@ -370,20 +373,8 @@ onUnmounted(() => {
                 <dt>Midnight 계약</dt>
                 <dd>{{ run.midnightContractAddress }}</dd>
               </div>
-              <div>
-                <dt>대상 역할 지갑</dt>
-                <dd>{{ run.partyWallet }}</dd>
-              </div>
-              <div>
-                <dt>결과 수신 지갑</dt>
-                <dd>{{ run.intendedFunderWallet }}</dd>
-              </div>
-              <div>
-                <dt>채권 네트워크 / 계약</dt>
-                <dd>{{ run.giwaChainId }} · {{ run.receivableFinanceAddress }}</dd>
-              </div>
               <div v-if="run.transactionId">
-                <dt>실제 트랜잭션</dt>
+                <dt>실제 Midnight 트랜잭션</dt>
                 <dd>{{ run.transactionId }}</dd>
               </div>
               <div v-if="run.blockHeight">
@@ -418,7 +409,7 @@ onUnmounted(() => {
       <LockKeyhole :size="20" />
       <p>
         모든 기업과 재무자료, 확인 기관은 가상입니다. 운영 서버와 증명 서버는 합성 재무값을 처리하고
-        운영자의 데모 지갑이 거래를 제출합니다. 결과는 은행 검증, 실제 기업의 신용평가 또는 펀딩
+        Midnight 네트워크에 증명을 제출합니다. 결과는 은행 검증, 실제 기업의 신용평가 또는 펀딩
         승인이 아닙니다. 재무 원문·서명·비밀값은 공개 결과에 포함되지 않습니다.
       </p>
     </aside>

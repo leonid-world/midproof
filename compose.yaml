@@ -1,6 +1,6 @@
 # All state is scoped to this Compose project. No host wallet/DB is mounted.
 # Docker Compose v2; first start downloads images, packages and proof parameters.
-name: midproof-local
+name: midproof-midnight
 services:
   database:
     image: mysql:8.4
@@ -18,35 +18,6 @@ services:
       timeout: 5s
       retries: 40
     stop_grace_period: 30s
-
-  evm:
-    image: ghcr.io/foundry-rs/foundry:v1.8.3@sha256:2e4287278639262de76db72477301d5d3212fa1b1cce710d7d148750a46ce9e7
-    entrypoint: [anvil]
-    command: [--host, 0.0.0.0, --chain-id, '31337', --state, /data/state.json, --state-interval, '1', --preserve-historical-states, --silent]
-    user: '0:0'
-    volumes:
-      - evm-data:/data
-    healthcheck:
-      test: [CMD, cast, chain-id, --rpc-url, 'http://127.0.0.1:8545']
-      interval: 2s
-      timeout: 5s
-      retries: 30
-    stop_grace_period: 30s
-
-  evm-setup:
-    build:
-      context: .
-      dockerfile: docker/local/contracts.Dockerfile
-    environment:
-      MIDPROOF_LOCAL_DEMO: 'true'
-      MIDNIGHT_NETWORK_ID: undeployed
-      GIWA_RPC_URL: http://evm:8545
-      MIDPROOF_LOCAL_CONFIG_DIR: /demo-config
-    volumes:
-      - demo-config:/demo-config
-    depends_on:
-      evm:
-        condition: service_healthy
 
   midnight-node:
     image: midnightntwrk/midnight-node:1.0.0
@@ -97,6 +68,7 @@ services:
     environment:
       NODE_ENV: production
       MIDPROOF_LOCAL_DEMO: 'true'
+      MIDPROOF_SYNTHETIC_ONLY: 'true'
       MIDNIGHT_NETWORK_ID: undeployed
       # Public local genesis seed from the official standalone development stack.
       MIDPROOF_LOCAL_WALLET_SEED: '0000000000000000000000000000000000000000000000000000000000000001'
@@ -115,15 +87,11 @@ services:
       DB_NAME: midproof_local
       DB_USERNAME: midproof
       DB_PASSWORD: local-demo-only
-      GIWA_MIN_CONFIRMATIONS: '1'
     volumes:
       - app-data:/data
-      - demo-config:/demo-config:ro
     depends_on:
       database:
         condition: service_healthy
-      evm-setup:
-        condition: service_completed_successfully
       indexer:
         condition: service_healthy
     healthcheck:
@@ -146,8 +114,6 @@ services:
 
 volumes:
   mysql-data:
-  evm-data:
-  demo-config:
   midnight-chain:
   indexer-data:
   app-data:

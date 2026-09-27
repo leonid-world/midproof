@@ -1,3 +1,7 @@
+import path from 'node:path';
+import { randomBytes } from 'node:crypto';
+import { SYNTHETIC_SUBJECT_ID, validateSyntheticContext } from '../../../shared/synthetic-context.mjs';
+import { readEncryptedJson, writeEncryptedJson } from './state.js';
 import { constants, promises as fs } from 'node:fs';
 import { Wallet } from 'ethers';
 import { GIWA_CHAIN_ID, RECEIVABLE_FINANCE_ADDRESS, type SubjectRole } from '../giwa.js';
@@ -6,7 +10,7 @@ import {
   hashAuthorizationChallenge, validateAuthorizationProof, type AuthorizationChallenge,
   type AuthorizationProof, type FunderPolicyRequestWire,
 } from '../authorization.js';
-import type { DemoNetwork } from './config.js';
+import type { DemoConfig, DemoNetwork } from './config.js';
 
 export interface DemoFixture {
   networkId: DemoNetwork;
@@ -72,4 +76,30 @@ export async function loadDemoFixture(networkId: DemoNetwork, file = process.env
     if (!stat.isFile() || stat.nlink !== 1 || stat.size > 8192 || (stat.mode & 0o077) !== 0) throw new Error('DEMO_FIXTURE_PRIVATE_FILE_REQUIRED');
     return parseDemoFixture(JSON.parse(await handle.readFile('utf8')), networkId);
   } finally { await handle.close(); }
+}
+
+/** Internal authorization keys only: no EVM provider, balance, asset or faucet. */
+export async function loadSyntheticDemoFixture(config: DemoConfig, password: string): Promise<DemoFixture | undefined> {
+  if (config.syntheticOnly !== true) return undefined;
+  const file = path.join(config.stateDir, 'synthetic-auth.enc');
+  let value = await readEncryptedJson<Record<string, unknown>>(file, password);
+  if (value === null) {
+    // A partial deletion must not replace the identity of persisted demo runs.
+    try {
+      await fs.lstat(path.join(config.stateDir, 'synthetic-demo-runs.enc'));
+      throw new Error('SYNTHETIC_AUTH_STATE_MISSING');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    }
+    // The hosted state process lock is acquired before this factory is called.
+    value = { version: 1, networkId: config.networkId, giwaChainId: GIWA_CHAIN_ID.toString(),
+      receivableFinanceAddress: RECEIVABLE_FINANCE_ADDRESS, onchainReceivableId: SYNTHETIC_SUBJECT_ID,
+      sellerPrivateKey: Wallet.createRandom().privateKey, buyerPrivateKey: Wallet.createRandom().privateKey,
+      intendedFunderWallet: `0x${randomBytes(20).toString('hex')}` };
+    validateSyntheticContext(parseDemoFixture(value, config.networkId));
+    await writeEncryptedJson(file, password, value);
+  }
+  const fixture = parseDemoFixture(value, config.networkId);
+  validateSyntheticContext(fixture);
+  return fixture;
 }
