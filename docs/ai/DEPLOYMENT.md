@@ -1,5 +1,25 @@
 # Deployment
 
+## Recording role entry — 2026-09-27
+
+The optional Seller/Buyer/Funder recording shortcuts use the existing public
+synthetic accounts and real user-controlled MetaMask transactions on GIWA
+Sepolia91342. They do not change the walletless Midnight-only review flow.
+
+- Existing Railway app: `RECORDING_DEMO_ENABLED=true` pins the three role
+  companies to their addresses from `scripts/prepare-midnight-demo.mjs` and
+  rejects an address/network mismatch before changing the wallet mapping.
+- Existing Vercel `giwa-ui` build: `VITE_RECORDING_DEMO_ENABLED=true` displays
+  the three buttons below Demo Start. Activate only after the server guard is
+  deployed and verified. Preserve the existing environment values and services.
+- Both defaults are false. The default local Compose reviewer experience stays
+  walletless; enabling this hosted recording shortcut is not a clone prerequisite.
+- A role button authenticates the existing ordinary account and checks its
+  registered wallet. It neither overwrites mismatched mappings nor signs GIWA
+  transactions. The owner selects/authorizes the corresponding MetaMask wallet.
+
+Rollout evidence: [recording validation](RECORDING_DEMO_VALIDATION_2026-09-27.md).
+
 ## Current submission packaging — 2026-09-27
 
 The owner approved the new `leonid-world/midproof` monorepo and existing-service

@@ -1,7 +1,12 @@
-import { computed, ref } from 'vue'
+import { computed, onScopeDispose, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { ApiError, apiRequest } from '../services/api'
 import { getMetaMaskProvider } from '../services/web3/provider'
+import {
+  assertAuthSessionCurrent,
+  captureAuthSession,
+  onAuthSessionChange,
+} from '../services/authSession'
 
 function metaMaskError(error) {
   if (error?.code === 4001) return new Error('MetaMask 계정 선택이 취소되었습니다.')
@@ -15,6 +20,8 @@ export const useWalletStore = defineStore('wallet', () => {
   const pendingChainId = ref(null)
   const isConnected = computed(() => Boolean(walletAddress.value))
   const hasPendingWallet = computed(() => Boolean(pendingWalletAddress.value))
+
+  onScopeDispose(onAuthSessionChange(clear))
 
   async function loadWallet() {
     try {
@@ -30,9 +37,12 @@ export const useWalletStore = defineStore('wallet', () => {
   }
 
   async function selectAccount() {
+    const session = captureAuthSession()
     const metaMaskProvider = getMetaMaskProvider()
     if (!metaMaskProvider) {
-      throw new Error('MetaMask provider를 찾지 못했습니다. 확장 프로그램을 활성화한 뒤 페이지를 새로고침해 주세요.')
+      throw new Error(
+        'MetaMask provider를 찾지 못했습니다. 확장 프로그램을 활성화한 뒤 페이지를 새로고침해 주세요.',
+      )
     }
 
     try {
@@ -43,17 +53,22 @@ export const useWalletStore = defineStore('wallet', () => {
         })
       } catch (error) {
         if (error?.code !== -32601) throw error
+        assertAuthSessionCurrent(session)
         await metaMaskProvider.request({ method: 'eth_requestAccounts' })
       }
 
+      assertAuthSessionCurrent(session)
       const accounts = await metaMaskProvider.request({ method: 'eth_accounts' })
+      assertAuthSessionCurrent(session)
       if (!accounts?.length) throw new Error('MetaMask 계정을 선택해 주세요.')
 
       const chainId = await metaMaskProvider.request({ method: 'eth_chainId' })
+      assertAuthSessionCurrent(session)
       pendingWalletAddress.value = accounts[0]
       pendingChainId.value = Number(BigInt(chainId))
       return pendingWalletAddress.value
     } catch (error) {
+      if (error?.code === 'AUTH_SESSION_CHANGED') throw error
       throw metaMaskError(error)
     }
   }

@@ -1,5 +1,25 @@
 # Current Context
 
+## 2026-09-27 Recording-only role entry
+
+The owner requested Seller/Buyer/Funder buttons below the existing walletless
+demo action solely for filming the ordinary GIWA flow. Live presentations keep
+using Demo Start and Midnight proof. The existing public synthetic accounts
+`seller/buyer/funder@midnight-demo.test` and their original fixed MetaMask
+addresses were verified through hosted login and wallet reads before changes.
+No new account, key, token funding or receivable preparation is needed for this
+entry change. Role buttons reuse ordinary login; the walletless limited JWT
+and synthetic Midnight-only route remain separate.
+
+An opt-in Spring wallet policy rejects any address/network reassignment for
+those three companies before a database write, including requests by another
+user of the same company. GIWA Sepolia chain91342 and the historical public
+addresses are pinned; no server signing or forced MetaMask account switch is
+introduced. `RECORDING_DEMO_ENABLED` and `VITE_RECORDING_DEMO_ENABLED` default
+false. Enable the server guard before publishing the UI buttons. Validation and
+rollout are tracked in RECORDING_DEMO_VALIDATION_2026-09-27.md. This is a UI entry
+and fixed test-account policy, not a change to ADR-025 or the proof architecture.
+
 ## 2026-09-27 Simplified demo and editable verification criteria
 
 The owner requested substantially less explanation and an easier demo, especially

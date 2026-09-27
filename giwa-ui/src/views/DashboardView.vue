@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   CheckCircle2,
@@ -18,6 +18,7 @@ import {
 import { useAuthStore } from '../stores/auth'
 import { useWalletStore } from '../stores/wallet'
 import { isMidnightPocEnabled } from '../services/midnight/config'
+import { recordingDemoAccountFor } from '../services/recordingDemo'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -29,6 +30,13 @@ const isSelecting = ref(false)
 const isConnecting = ref(false)
 const isWalletLoading = ref(true)
 const walletLoadFailed = ref(false)
+const recordingAccount = computed(() => recordingDemoAccountFor(auth.user?.email))
+const recordingWalletMismatch = computed(
+  () =>
+    recordingAccount.value &&
+    wallet.hasPendingWallet &&
+    wallet.pendingWalletAddress?.toLowerCase() !== recordingAccount.value.walletAddress,
+)
 
 onMounted(loadWalletState)
 
@@ -62,6 +70,7 @@ async function selectWalletAccount() {
 }
 
 async function confirmWalletConnection() {
+  if (recordingWalletMismatch.value) return
   errorMessage.value = ''
   errorCode.value = ''
   successMessage.value = ''
@@ -114,6 +123,12 @@ function logout() {
           </div>
         </div>
 
+        <div v-if="recordingAccount" class="recording-wallet-note">
+          <strong>{{ recordingAccount.label }} · 영상 촬영용</strong>
+          <p>MetaMask에서 아래 지정 지갑을 사용하세요. 거래는 직접 확인·서명합니다.</p>
+          <span class="wallet-address">{{ recordingAccount.walletAddress }}</span>
+        </div>
+
         <div class="wallet-summary">
           <span>현재 연결 상태</span>
           <strong v-if="isWalletLoading" class="loading-state" role="status">
@@ -149,9 +164,18 @@ function logout() {
         >
           <span>선택한 MetaMask 계정</span>
           <strong class="wallet-address">{{ wallet.pendingWalletAddress }}</strong>
-          <p>이 주소를 회사 지갑으로 연결하시겠습니까?</p>
+          <p v-if="recordingWalletMismatch" role="alert">
+            지정 지갑과 다릅니다. MetaMask에서 {{ recordingAccount.label }} 지갑을 선택해 주세요.
+          </p>
+          <p v-else-if="recordingAccount">지정된 {{ recordingAccount.label }} 지갑입니다.</p>
+          <p v-else>이 주소를 회사 지갑으로 연결하시겠습니까?</p>
           <div class="confirmation-actions">
-            <button type="button" :disabled="isConnecting" @click="confirmWalletConnection">
+            <button
+              v-if="!recordingWalletMismatch"
+              type="button"
+              :disabled="isConnecting"
+              @click="confirmWalletConnection"
+            >
               <Link2 aria-hidden="true" :size="18" />
               {{ isConnecting ? '연결 중...' : '이 지갑 연결' }}
             </button>
@@ -279,6 +303,25 @@ function logout() {
 </template>
 
 <style scoped>
+.recording-wallet-note {
+  display: grid;
+  gap: 8px;
+  margin-top: var(--space-3);
+  padding: var(--space-2);
+  border: 1px solid var(--color-brand-border);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-soft);
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.recording-wallet-note strong {
+  color: var(--color-brand);
+}
+.recording-wallet-note p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
 .dashboard {
   min-height: 100%;
   padding: var(--space-6) var(--space-3) var(--space-8);

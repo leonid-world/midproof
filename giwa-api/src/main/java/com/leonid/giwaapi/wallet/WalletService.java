@@ -17,16 +17,20 @@ public class WalletService {
 
     private final UserMapper userMapper;
     private final WalletMapper walletMapper;
+    private final RecordingDemoWalletPolicy recordingDemoWalletPolicy;
 
-    public WalletService(UserMapper userMapper, WalletMapper walletMapper) {
+    public WalletService(UserMapper userMapper, WalletMapper walletMapper,
+                         RecordingDemoWalletPolicy recordingDemoWalletPolicy) {
         this.userMapper = userMapper;
         this.walletMapper = walletMapper;
+        this.recordingDemoWalletPolicy = recordingDemoWalletPolicy;
     }
 
     @Transactional
     public WalletResponse connect(String email, WalletConnectRequest request) {
         User user = findUser(email);
         String walletAddress = request.walletAddress().toLowerCase(Locale.ROOT);
+        recordingDemoWalletPolicy.check(user, walletAddress, request.chainId());
         Wallet addressOwner = walletMapper.findByWalletAddress(walletAddress).orElse(null);
         if (addressOwner != null && !addressOwner.companyId().equals(user.companyId())) {
             throw walletAlreadyMapped();

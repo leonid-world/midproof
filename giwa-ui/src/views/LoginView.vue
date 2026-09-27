@@ -11,11 +11,19 @@ import {
   UserPlus,
 } from '@lucide/vue'
 import { useAuthStore } from '../stores/auth'
+import { useWalletStore } from '../stores/wallet'
 import { formatBusinessNumber, normalizeBusinessNumber } from '../utils/businessNumber'
 import { isMidnightDemoEnabled } from '../services/midnight/config'
+import { captureAuthSession, isAuthSessionCurrent } from '../services/authSession'
+import {
+  isRecordingDemoEnabled,
+  recordingDemoAccounts,
+  recordingDemoCredentials,
+} from '../services/recordingDemo'
 
 const router = useRouter()
 const auth = useAuthStore()
+const wallet = useWalletStore()
 const isSignup = ref(false)
 const showAccountForm = ref(!isMidnightDemoEnabled)
 const email = ref('')
@@ -25,6 +33,7 @@ const companyName = ref('')
 const businessNumber = ref('')
 const errorMessage = ref('')
 const isSubmitting = ref(false)
+const openingRole = ref(null)
 
 async function loginDemo() {
   if (isSubmitting.value) return
@@ -36,6 +45,34 @@ async function loginDemo() {
   } catch (error) {
     errorMessage.value = error.message
   } finally {
+    isSubmitting.value = false
+  }
+}
+
+async function loginRecordingDemo(account) {
+  if (!isRecordingDemoEnabled || isSubmitting.value) return
+  errorMessage.value = ''
+  openingRole.value = account.role
+  isSubmitting.value = true
+  let session
+  try {
+    await auth.login(recordingDemoCredentials(account))
+    session = captureAuthSession()
+    await wallet.loadWallet()
+    if (wallet.walletAddress?.toLowerCase() !== account.walletAddress) {
+      throw new Error(
+        `${account.label} 촬영 계정의 지정 지갑을 확인하지 못했습니다. 운영자에게 문의해 주세요.`,
+      )
+    }
+    await router.push({ name: 'dashboard' })
+  } catch (error) {
+    if (session && isAuthSessionCurrent(session)) {
+      auth.logout()
+      wallet.clear()
+    }
+    errorMessage.value = error.message
+  } finally {
+    openingRole.value = null
     isSubmitting.value = false
   }
 }
@@ -136,15 +173,35 @@ function updateBusinessNumber(event) {
         >
           <button type="button" :disabled="isSubmitting" @click="loginDemo">
             <LoaderCircle
-              v-if="isSubmitting"
+              v-if="isSubmitting && !openingRole"
               class="button-spinner"
               aria-hidden="true"
               :size="18"
             />
-            <span>{{ isSubmitting ? '데모 여는 중…' : '데모 시작' }}</span>
+            <span>{{ isSubmitting && !openingRole ? '데모 여는 중…' : '데모 시작' }}</span>
             <ArrowRight v-if="!isSubmitting" aria-hidden="true" :size="18" />
           </button>
           <p>회원가입·지갑 설치 없이 시작합니다.</p>
+        </section>
+
+        <section
+          v-if="isMidnightDemoEnabled && isRecordingDemoEnabled && !showAccountForm"
+          class="recording-entry"
+          aria-label="영상 촬영용 역할 로그인"
+          :aria-busy="Boolean(openingRole)"
+        >
+          <p>영상 촬영용 · MetaMask 필요</p>
+          <div class="recording-actions">
+            <button
+              v-for="account in recordingDemoAccounts"
+              :key="account.role"
+              type="button"
+              :disabled="isSubmitting"
+              @click="loginRecordingDemo(account)"
+            >
+              {{ openingRole === account.role ? '로그인 중…' : account.label }}
+            </button>
+          </div>
         </section>
 
         <div v-if="errorMessage" class="error" role="alert">
@@ -232,6 +289,33 @@ function updateBusinessNumber(event) {
 </template>
 
 <style scoped>
+.recording-entry {
+  margin: 20px 0 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+.recording-entry p {
+  margin: 0 0 10px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+.recording-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.recording-actions button {
+  min-height: 42px;
+  padding: 8px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 13px;
+}
+.recording-actions button:hover:not(:disabled) {
+  background: var(--color-surface-subtle);
+}
 .demo-entry {
   margin: 24px 0 12px;
 }
