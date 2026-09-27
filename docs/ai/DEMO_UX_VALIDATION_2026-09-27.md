@@ -2,8 +2,8 @@
 
 Status: implemented and validated through two actual isolated local browser proofs
 and application-restart recovery. Full UI validation, final image builds and
-desktop/mobile layout checks passed. Public rollout of this change is not yet
-recorded here.
+desktop/mobile layout checks passed. The public release, two actual Preview
+browser proofs and same-session browser reload recovery passed.
 
 ## Scope
 
@@ -81,10 +81,37 @@ in a 390×844 mobile viewport. Both had no horizontal page overflow; the mobile
 header's three items remained on one row. The primary action is visible without
 initial scrolling at both checked sizes.
 
-## Workspace and remaining checks
+## Public release and Preview browser validation
+
+- Application source: `110dff0ab8131b0cfbf2bcb9d69b09237f65f421`.
+- Both GitHub deployment statuses succeeded for that source.
+- Existing Railway app deployment: `cc3416f5-9338-4cef-b98c-c03d71021c39`.
+- Existing Vercel project deployment: `CYB6vxvqZFBGDocue4nD5urnNwtu`, serving
+  `https://midproof.vercel.app`.
+- Public configuration reports `customCriteriaEnabled=true`, runtime ready and
+  Preview. The existing contract remains
+  `bfb760db44f9ee7996ef12c47e56346903c654aede7d65c3c88110214c932a1e`.
+
+The actual public browser entered through the single demo-start action and
+completed two Buyer / fictional company B runs. Both used real proof generation,
+Preview submission and independent result resolution:
+
+| Criteria | Eligible | Actual Preview transaction | Block |
+| --- | --- | --- | --- |
+| Minimum revenue 300,000,000 KRW (3억), maximum debt ratio 30,000 bps (300%), overdue ≤ 3 | true | `00595bad613a56b335c608ffd936d444ca358a6bd794eae2440da8417911dad01e` | 1049250 |
+| Minimum revenue 301,000,000 KRW (3.01억), maximum debt ratio 29,999 bps (299.99%), overdue ≤ 3 | false | `00e5d6e5bca26d35622071ba449678c6ce3a71ee5725a3dbba914dff15a50d744e` | 1049260 |
+
+The first uses the relaxed preset; the second directly edited the same company's
+public criteria. False was displayed as an unmet-criteria result, not an error.
+Reloading the public browser recovered the second result. Reopening its details
+showed exactly the same 3.01억/299.99%/3 criteria, request, transaction, block and
+false result without reproof. This is browser-reload recovery; the separately
+recorded application-restart recovery above was performed on the isolated local
+stack. No new hosted process-restart acceptance is claimed for this release.
+
+## Workspace
 
 Work is in the MidProof monorepo; all application directories are ordinary
 tracked folders. Original GASOK and its submodule worktrees remain untouched.
-No new architecture decision was made, so DECISIONS.md is unchanged.
-
-- Record any public rollout and fresh public proof separately if performed.
+No new architecture decision was made, so DECISIONS.md is unchanged. The local
+and public acceptance checks for this UX change are complete.

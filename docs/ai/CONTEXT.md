@@ -21,9 +21,18 @@ and view9 checks passed; the scopes overlap. App/web image rebuild and actual ap
 passed, readiness returned true, and the browser recovered the exact custom
 criteria/result/transaction/block1186 without reproof. Final web image and
 1280×720 desktop/390×844 mobile visual checks passed: no horizontal overflow,
-start button visible without scrolling, mobile header on one row. This change's
-public rollout has not yet been recorded. Exact evidence and remaining
-checks: [DEMO_UX_VALIDATION_2026-09-27.md](DEMO_UX_VALIDATION_2026-09-27.md).
+start button visible without scrolling, mobile header on one row.
+
+Source110dff0 is deployed through the existing Railway/Vercel Git connections;
+both deployment statuses succeeded. Public config is ready on the same Preview
+contract and reports customCriteriaEnabled=true. Actual public browser demo
+login followed by Buyer/company B relaxed3억/300%/3 completed true at block1049250.
+The same company's custom3.01억/299.99%/3 proof completed false at block1049260.
+Public browser reload recovered the exact criteria/request/transaction/block and
+false result without reproof. This public browser-reload evidence is distinct
+from the local application-restart check above. The change's local/public
+acceptance is complete. Exact evidence:
+[DEMO_UX_VALIDATION_2026-09-27.md](DEMO_UX_VALIDATION_2026-09-27.md).
 
 ## 2026-09-27 Submission readiness audit
 
