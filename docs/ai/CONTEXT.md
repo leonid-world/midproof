@@ -20,6 +20,17 @@ false. Enable the server guard before publishing the UI buttons. Validation and
 rollout are tracked in RECORDING_DEMO_VALIDATION_2026-09-27.md. This is a UI entry
 and fixed test-account policy, not a change to ADR-025 or the proof architecture.
 
+Implementation98e3c6f is public. UI339tests/38files, wallet/auth18tests, backend
+bootJar, recording-enabled Vue production build, full lint and independent
+review passed. Railway86ac953d succeeded with the guard enabled before Vercel
+7VXAzJNQsbXR5SKaYwTzxQeFScAF activated the three buttons. Public browser checks
+logged in as each role and displayed the matching fixed address and ordinary
+menus; Funder's funding list loaded. All three wrong-role wallet connection
+requests returned409 ROLE_DEMO_WALLET_MISMATCH and left mappings unchanged.
+The original Demo Start still reaches enabled company/criteria/consent controls
+without MetaMask. Backend proofReady=true and the existing Preview contract
+are preserved. No new asset transaction or Midnight proof was submitted.
+
 ## 2026-09-27 Simplified demo and editable verification criteria
 
 The owner requested substantially less explanation and an easier demo, especially
