@@ -34,11 +34,17 @@ repository contains ordinary directories rather than Git submodules.
 - Authenticated hosted proof sessions, encrypted capability custody/outbox,
   idempotent delivery and conservative recovery after uncertain submissions.
 - 2026-09-27 review experience: limited demo JWTs, per-login run ownership,
-  server-managed synthetic-role consent, real GIWA role checks and a Vue flow
-  requiring no reviewer wallet or asset transaction.
-- 2026-09-27 reproducibility: one repository and isolated Compose profile with
-  new local EVM fixtures and Midnight Local Devnet; no author-owned wallet,
-  cloud credentials or faucet are needed for the local reviewer workflow.
+  explicit consent, automatically prepared encrypted demo authentication and
+  reserved synthetic context. The Vue demo requires no GIWA RPC, receivable,
+  funded role wallet or asset transaction from either reviewer or operator.
+- 2026-09-27 reproducibility: one repository and an isolated five-service Compose
+  profile with Midnight Local Devnet and automatic account/demo authentication
+  setup. No EVM, GIWA fixture, author-owned wallet, cloud credentials or faucet
+  is needed for the local reviewer workflow.
+
+Under ADR-025, this synthetic-only demo is separate from the ordinary GIWA
+asset flow. The reused Solidity contracts and the existing role and wallet
+checks for ordinary receivable, funding and repayment operations remain intact.
 
 ## Claims and limitations
 

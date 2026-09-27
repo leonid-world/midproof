@@ -79,7 +79,7 @@ docker compose up -d
 | `giwa-ui` | Vue 화면과 데모 흐름 |
 | `giwa-api` | Spring 사용자 인증과 기존 채권 API |
 | `giwa-midnight` | Compact 회로, 가상 Provider, 증명·제출·독립 결과 조회 |
-| `giwa-contrract` | 기존 GIWA 채권 Solidity 계약과 로컬 fixture 준비 |
+| `giwa-contrract` | 일반 자산 흐름의 기존 GIWA 채권·펀딩·상환 Solidity 계약 |
 
 기존 GASOK/GIWA의 채권·펀딩·상환 기반 및 Midnight 공식 ZK Loan 예제를
 재사용했습니다. 이 저장소를 새로 만들었다는 사실이 기존 코드의 신규성이나

@@ -1,5 +1,16 @@
 # Current Context
 
+## 2026-09-27 Submission readiness audit
+
+The two requested technical deliverables are accepted: walletless hosted
+Midnight-only demo and public clone-and-run monorepo. Anonymous repository/topic
+access, public web HTTP 200 and backend proofReady=true were rechecked.
+The final Tally form has not been filled or submitted by this work; previous
+GASOK reuse eligibility and new-work timing remain unconfirmed. Optional
+video/deck preparation is distinct from required form fields. Current source
+provenance wording was corrected to ADR-025 (no EVM or GIWA-role preparation
+for the synthetic demo). No application behavior changed in this audit.
+
 ## 2026-09-27 Correction: no GIWA preparation for the Midnight-only demo
 
 The owner rejected the unnecessary dedicated funded GIWA fixture dependency.
