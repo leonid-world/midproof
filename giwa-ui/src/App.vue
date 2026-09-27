@@ -38,6 +38,7 @@ watch(
     })
     if (!isAuthenticatedPage) {
       userLoadFailed.value = false
+      if (route.meta.requiresAuth) await router.replace({ name: 'login' })
       return
     }
     if (auth.user) return
@@ -119,7 +120,10 @@ watch(
         v-if="showAuthenticatedLayout && isMidnightDemoEnabled && !auth.isDemoSession"
         :key="auth.sessionGeneration"
       />
-      <RouterView :key="auth.sessionGeneration" />
+      <RouterView
+        v-if="!route.meta.requiresAuth || auth.isAuthenticated"
+        :key="auth.sessionGeneration"
+      />
     </div>
     <footer class="app-footer">
       <div class="app-footer__inner">

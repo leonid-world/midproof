@@ -71,3 +71,31 @@ No GIWA financial transaction or new Midnight proof is required or claimed by
 these login checks. Full historical funding/repayment rehearsal remains a
 separate scope. Work is in the MidProof monorepo; original GASOK and its dirty
 submodule worktrees are preserved.
+
+## Follow-up: Profile logout freeze
+
+The owner found that logout from **내 정보 / Profile** froze the browser when
+switching recording roles. The earlier browser checks above logged out through
+Dashboard and did not cover Profile. MetaMask was not the cause of this loop.
+
+Root cause: logout increments the auth generation; App keys RouterView by that
+generation, so it remounted the still-current Profile before asynchronous
+navigation completed. Profile saw a missing user and logged out again. Forced
+generation increments even for an already-null token repeated the cycle.
+
+Before the fix, real App + Pinia auth/wallet stores + Profile + memory-router
+tests failed for all three roles (nine logout calls, stopped by a bounded test
+guard). The repeated-null session test also failed. API responses alone were
+mocked; the app shell, auth session and routed pages were real components.
+
+The fix prevents a protected page from remounting without authentication and
+does not re-invalidate an already-empty session. Non-null login still invalidates
+previous work even when the token string is unchanged. An existing mocked proof
+polling test was corrected to establish an authenticated session before testing
+logout; it had previously started anonymous and depended on forced null resets.
+
+The app also redirects protected routes to login when another tab clears the
+session. A separate regression reproduced the blank protected route before this
+redirect and passes afterward. Final checks passed all347tests/40files,
+recording-enabled production build, full read-only ESLint/Oxlint and diff checks.
+Public deployment acceptance is pending; these checks do not claim a rollout.

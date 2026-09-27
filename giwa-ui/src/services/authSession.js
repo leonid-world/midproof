@@ -32,7 +32,9 @@ export function assertAuthSessionCurrent(snapshot) {
 export function setAuthSessionToken(value) {
   if (value) localStorage.setItem('accessToken', value)
   else localStorage.removeItem('accessToken')
-  synchronize(value || null, true)
+  // Repeated logout is a no-op; every login still invalidates older requests,
+  // even if the server returns the same token for the new session.
+  synchronize(value || null, Boolean(value))
 }
 
 export function onAuthSessionChange(listener) {

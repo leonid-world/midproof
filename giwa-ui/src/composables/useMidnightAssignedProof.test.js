@@ -104,8 +104,14 @@ async function flushPromises() {
 }
 
 describe('request-bound issuer proof reliability', () => {
-  beforeEach(() => vi.setSystemTime(new Date(1_800_000_010_000)))
-  afterEach(() => vi.useRealTimers())
+  beforeEach(() => {
+    vi.setSystemTime(new Date(1_800_000_010_000))
+    setAuthSessionToken('company-a')
+  })
+  afterEach(() => {
+    setAuthSessionToken(null)
+    vi.useRealTimers()
+  })
 
   it('clears all browser financial refs immediately after challenge before wallet signing', async () => {
     const sign = deferred()

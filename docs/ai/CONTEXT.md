@@ -1,5 +1,25 @@
 # Current Context
 
+## 2026-09-27 Profile logout feedback loop
+
+The owner reported a browser freeze while switching recording roles. The real
+App/Pinia/Profile/memory-router regression reproduced repeated logout in all
+three roles: clearing auth changed the keyed RouterView, remounting Profile
+before navigation completed. Profile's missing-user handler called logout again,
+continually invalidating the session and restarting navigation. A bounded test
+stopped the old behavior after nine calls. Earlier public acceptance exercised
+Dashboard logout, not this Profile path.
+
+The fix removes protected views as soon as authentication disappears and makes
+already-null logout idempotent. Every non-null login still changes generation,
+including repeated tokens, so stale API and wallet responses remain rejected.
+The app redirects protected routes to login on session loss, including logout
+from another tab. That regression failed before the redirect and passed afterward.
+All347tests/40files, recording-enabled production build and full lint pass.
+Public deployment acceptance is tracked in TODO and
+RECORDING_DEMO_VALIDATION_2026-09-27.md. There is no architecture,
+backend, contract, stored wallet or financial transaction change.
+
 ## 2026-09-27 Recording-only role entry
 
 The owner requested Seller/Buyer/Funder buttons below the existing walletless
